@@ -72,3 +72,55 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
                 return list(merged.values())
 
         return super().skills_for(goal_id)
+
+
+# The application layer uses RuntimeGoalTaxonomyParser explicitly.  Legacy
+# callers still instantiate GoalTaxonomyParser directly, so patch the base
+# parser's mapping stage once at import time to recognize the same canonical
+# Level-4 source without changing its public API.
+_ORIGINAL_PARSE_SKILL_MAPPINGS = GoalTaxonomyParser._parse_skill_mappings
+
+
+def _parse_skill_mappings_with_level4(self: GoalTaxonomyParser) -> None:
+    _ORIGINAL_PARSE_SKILL_MAPPINGS(self)
+    for match in RuntimeGoalTaxonomyParser._SUBGOAL_MAPPING_RE.finditer(self._raw):
+        goal_id = match.group(1)
+        skills = []
+        for skill_match in RuntimeGoalTaxonomyParser._NUMBERED_SKILL_RE.finditer(match.group(2)):
+            skill_id = skill_match.group(1).strip()
+            skills.append(
+                {
+                    "id": skill_id,
+                    "name": skill_id.replace("-", " ").replace(":", " ").title(),
+                    "category": "",
+                    "priority": skill_match.group(2).strip(),
+                    "learn_time_hrs": int(skill_match.group(3)),
+                }
+            )
+        if skills:
+            self._skill_maps[goal_id] = skills
+
+
+GoalTaxonomyParser._parse_skill_mappings = _parse_skill_mappings_with_level4
+
+
+# Legacy names used by the historical consistency suite remain accepted, but
+# canonical taxonomy names continue to win exact matching first.
+_LEGACY_GOAL_ALIASES = {
+    "memory agent": "G05",
+    "workflow automation agent": "G06",
+    "security audit agent": "G07",
+    "analytics agent": "G10",
+    "model fine-tuning pipeline": "G11",
+}
+_ORIGINAL_RESOLVE = GoalTaxonomyParser.resolve
+
+
+def _resolve_with_legacy_aliases(self: GoalTaxonomyParser, query: str):
+    resolved = _ORIGINAL_RESOLVE(self, query)
+    if resolved is not None:
+        return resolved
+    return _LEGACY_GOAL_ALIASES.get(query.strip().lower())
+
+
+GoalTaxonomyParser.resolve = _resolve_with_legacy_aliases
