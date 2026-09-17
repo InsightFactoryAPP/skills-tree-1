@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:56:36Z",
+  "dateModified": "2026-09-17T15:58:06Z",
   "skillId": "clarification-seeking",
   "skillVersion": null,
   "skillLevel": "intermediate",
@@ -66,7 +66,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "AI agent, communication, LLM skill, seeking, skills tree, clarification",
+  "keywords": "AI agent, LLM skill, communication, skills tree, seeking, clarification",
   "about": {
     "@type": "Thing",
     "name": "Clarification Seeking",

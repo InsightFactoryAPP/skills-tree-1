@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:56:35Z",
+  "dateModified": "2026-09-17T15:58:06Z",
   "skillId": "database-reading",
   "skillVersion": null,
   "skillLevel": "intermediate",
@@ -75,7 +75,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "perception, AI agent, database, LLM skill, reading, skills tree",
+  "keywords": "database, AI agent, LLM skill, perception, skills tree, reading",
   "about": {
     "@type": "Thing",
     "name": "Database Reading",

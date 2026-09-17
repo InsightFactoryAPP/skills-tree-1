@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:56:36Z",
+  "dateModified": "2026-09-17T15:58:06Z",
   "skillId": "reflection",
   "skillVersion": "v3",
   "skillLevel": "advanced",
@@ -71,7 +71,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "patterns, AI agent, LLM skill, skills tree, agentic, reflection",
+  "keywords": "reflection, patterns, AI agent, LLM skill, skills tree, agentic",
   "about": {
     "@type": "Thing",
     "name": "Reflection / Reflexion",
