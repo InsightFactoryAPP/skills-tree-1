@@ -74,11 +74,12 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
         return super().skills_for(goal_id)
 
 
-# The application layer uses RuntimeGoalTaxonomyParser explicitly.  Legacy
+# The application layer uses RuntimeGoalTaxonomyParser explicitly. Legacy
 # callers still instantiate GoalTaxonomyParser directly, so patch the base
-# parser's mapping stage once at import time to recognize the same canonical
-# Level-4 source without changing its public API.
+# parser's mapping and lookup stages once at import time to recognize the same
+# canonical Level-4 source without changing its public API.
 _ORIGINAL_PARSE_SKILL_MAPPINGS = GoalTaxonomyParser._parse_skill_mappings
+_ORIGINAL_SKILLS_FOR = GoalTaxonomyParser.skills_for
 
 
 def _parse_skill_mappings_with_level4(self: GoalTaxonomyParser) -> None:
@@ -101,7 +102,27 @@ def _parse_skill_mappings_with_level4(self: GoalTaxonomyParser) -> None:
             self._skill_maps[goal_id] = skills
 
 
+def _skills_for_with_level4(self: GoalTaxonomyParser, goal_id: str) -> List[Dict]:
+    exact = self._skill_maps.get(goal_id)
+    if exact is not None:
+        return list(exact)
+
+    if "." not in goal_id:
+        parent_prefix = f"{goal_id}."
+        merged: "OrderedDict[str, Dict]" = OrderedDict()
+        for subgoal_id in sorted(self._skill_maps):
+            if not subgoal_id.startswith(parent_prefix):
+                continue
+            for skill in self._skill_maps[subgoal_id]:
+                merged.setdefault(skill["id"], dict(skill))
+        if merged:
+            return list(merged.values())
+
+    return _ORIGINAL_SKILLS_FOR(self, goal_id)
+
+
 GoalTaxonomyParser._parse_skill_mappings = _parse_skill_mappings_with_level4
+GoalTaxonomyParser.skills_for = _skills_for_with_level4
 
 
 # Legacy names used by the historical consistency suite remain accepted, but
