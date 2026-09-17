@@ -7,6 +7,7 @@ description: "Use a meta-model (or meta-prompt) to dynamically generate, select,
 added: "2025-06"
 version: v2
 tags: [reasoning, meta-learning, prompt-generation, orchestration]
+related: [prompt-engineering, planning-decomposition, ../09-agentic-patterns/reflection]
 updated: "2026-06"
 ---
 
@@ -58,7 +59,6 @@ Constraints: {constraints}"""
 def meta_prompt_solve(task_description: str, user_input: str, constraints: list[str] | None = None) -> dict:
     constraints_str = "; ".join(constraints) if constraints else "none"
 
-    # Step 1: Meta-model generates the prompt
     meta_resp = client.messages.create(
         model=META_MODEL, max_tokens=512,
         messages=[{"role": "user", "content": META_PROMPT.format(
@@ -67,7 +67,6 @@ def meta_prompt_solve(task_description: str, user_input: str, constraints: list[
     )
     generated_prompt = meta_resp.content[0].text.strip()
 
-    # Step 2: Task model executes with generated prompt
     task_resp = client.messages.create(
         model=TASK_MODEL, max_tokens=1024,
         system=generated_prompt,
