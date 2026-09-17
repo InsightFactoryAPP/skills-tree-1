@@ -115,8 +115,8 @@ if __name__ == "__main__":
 
 - [Self-Consistency](self-consistency.md) — uses voting to reduce uncertainty in answers
 - [Hypothesis Generation](hypothesis-generation.md) — generates candidate explanations for uncertain situations
-- [Reflection Pattern](../09-agentic-patterns/reflection-pattern.md) — re-evaluates low-confidence outputs
-- [RAG Retrieval](../03-memory/rag-retrieval.md) — retrieves evidence to reduce uncertainty
+- [Reflection Pattern](../09-agentic-patterns/reflection.md) — re-evaluates low-confidence outputs
+- [RAG Retrieval](../03-memory/rag.md) — retrieves evidence to reduce uncertainty
 
 ## Changelog
 
