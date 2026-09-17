@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:49:10Z",
+  "dateModified": "2026-09-17T15:56:17Z",
   "skillId": "fact-verification-memory",
   "skillVersion": null,
   "skillLevel": "advanced",
@@ -68,7 +68,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "LLM skill, AI agent, memory, skills tree, fact, verification",
+  "keywords": "fact, LLM skill, AI agent, skills tree, memory, verification",
   "about": {
     "@type": "Thing",
     "name": "Fact Verification Memory",

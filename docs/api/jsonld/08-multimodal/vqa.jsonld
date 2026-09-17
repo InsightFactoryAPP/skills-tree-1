@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:49:10Z",
+  "dateModified": "2026-09-17T15:56:17Z",
   "skillId": "vqa",
   "skillVersion": null,
   "skillLevel": "intermediate",
@@ -68,7 +68,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "multimodal, LLM skill, AI agent, skills tree, vqa",
+  "keywords": "vqa, LLM skill, AI agent, skills tree, multimodal",
   "about": {
     "@type": "Thing",
     "name": "Visual Question Answering (VQA)",

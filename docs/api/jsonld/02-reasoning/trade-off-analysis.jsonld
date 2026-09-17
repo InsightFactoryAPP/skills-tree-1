@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:49:10Z",
+  "dateModified": "2026-09-17T15:56:17Z",
   "skillId": "trade-off-analysis",
   "skillVersion": null,
   "skillLevel": "intermediate",
@@ -72,7 +72,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "trade, LLM skill, AI agent, reasoning, skills tree, off, analysis",
+  "keywords": "LLM skill, reasoning, trade, AI agent, skills tree, analysis, off",
   "about": {
     "@type": "Thing",
     "name": "Trade-off Analysis",

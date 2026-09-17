@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:49:10Z",
+  "dateModified": "2026-09-17T15:56:17Z",
   "skillId": "cross-thread-memory",
   "skillVersion": "v2",
   "skillLevel": "advanced",
@@ -76,7 +76,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2026-04-01",
-  "keywords": "LLM skill, memory, AI agent, cross, skills tree, thread",
+  "keywords": "LLM skill, cross, thread, AI agent, skills tree, memory",
   "about": {
     "@type": "Thing",
     "name": "Cross-Thread Memory",

@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:49:10Z",
+  "dateModified": "2026-09-17T15:56:17Z",
   "skillId": "prompt-engineering",
   "skillVersion": "v1",
   "skillLevel": "intermediate",
@@ -76,7 +76,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "LLM skill, AI agent, reasoning, skills tree, engineering, prompt",
+  "keywords": "LLM skill, reasoning, AI agent, prompt, skills tree, engineering",
   "about": {
     "@type": "Thing",
     "name": "Prompt Engineering",

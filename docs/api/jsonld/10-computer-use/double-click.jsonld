@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:49:10Z",
+  "dateModified": "2026-09-17T15:56:17Z",
   "skillId": "double-click",
   "skillVersion": null,
   "skillLevel": "basic",
@@ -66,7 +66,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "click, LLM skill, AI agent, skills tree, computer, double, use",
+  "keywords": "double, LLM skill, AI agent, computer, use, skills tree, click",
   "about": {
     "@type": "Thing",
     "name": "Double Click",
