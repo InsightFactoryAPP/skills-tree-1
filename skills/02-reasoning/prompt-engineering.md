@@ -34,6 +34,13 @@ Prompt Engineering is the disciplined design and refinement of model instruction
 | `output_schema` | `dict` | Expected machine-readable output contract |
 | → `prompt` | `str` | Complete model instruction |
 
+## Minimal Runnable Pattern
+
+```python
+def build_prompt(task, context, constraints):
+    return f"Task: {task}\nContext: {context}\nConstraints: {'; '.join(constraints)}"
+```
+
 ## Core Practices
 
 1. State the objective before implementation details.
