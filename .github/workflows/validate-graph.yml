@@ -46,6 +46,14 @@ jobs:
           python tools/build_graph.py --dry-run
           echo "build_status=$?" >> $GITHUB_OUTPUT
 
+      # Pull requests must validate the graph generated from the current source,
+      # not a potentially stale checked-in artifact. Main still materializes and
+      # commits the generated artifact in the existing write step below.
+      - name: Materialize graph for PR validation
+        if: github.event_name == 'pull_request'
+        run: |
+          python tools/build_graph.py --output data/SKILLS_GRAPH.json
+
       - name: Build graph (write artifacts)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -227,7 +235,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build-and-validate
     permissions:
-      contents: write  # required by EndBug/add-and-commit to push quality index
+      contents: write
 
     steps:
       - uses: actions/checkout@v4

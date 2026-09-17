@@ -1,213 +1,182 @@
-"""Test suite for RecommendationEngine component - Sprint A baseline"""
+"""Behavioral tests for the real recommendation engine.
+
+These tests intentionally execute the production taxonomy, graph, scoring,
+evidence, and explanation pipeline. They do not construct expected
+recommendation objects merely to validate their own fields.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
 import pytest
 
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-class TestRecommendationEngineBaseline:
-    """Deterministic tests for RecommendationEngine output validation"""
+from tools.architect import RecommendationEngine, SkillsGraph
+from tools.taxonomy_runtime import RuntimeGoalTaxonomyParser
 
-    def test_empty_recommendation_list(self):
-        """Test 1: Empty input returns empty recommendations"""
-        recommendations = []
-        assert len(recommendations) == 0
-        assert isinstance(recommendations, list)
+TAXONOMY_PATH = ROOT / "meta" / "GOAL_TAXONOMY.md"
+GRAPH_PATH = ROOT / "data" / "SKILLS_GRAPH.json"
+BM_INDEX_PATH = ROOT / "benchmarks" / "INDEX.json"
 
-    def test_single_recommendation_structure(self):
-        """Test 2: Single recommendation has required fields"""
-        rec = {
-            "skill_id": "python",
-            "reason": "foundational",
-            "priority": "high",
-            "score": 0.95
-        }
-        assert "skill_id" in rec
-        assert "reason" in rec
-        assert "priority" in rec
-        assert "score" in rec
 
-    def test_recommendation_score_range(self):
-        """Test 3: Scores are within valid range [0, 1]"""
-        recs = [
-            {"skill_id": "js", "score": 0.8},
-            {"skill_id": "python", "score": 0.95},
-            {"skill_id": "docker", "score": 0.6}
+@pytest.fixture(scope="module")
+def engine() -> RecommendationEngine:
+    taxonomy = RuntimeGoalTaxonomyParser(str(TAXONOMY_PATH))
+    graph = SkillsGraph(str(GRAPH_PATH))
+    benchmark_path = str(BM_INDEX_PATH) if BM_INDEX_PATH.exists() else None
+    return RecommendationEngine(graph, taxonomy, benchmark_path)
+
+
+@pytest.mark.parametrize(
+    ("goal", "expected_goal_id"),
+    [
+        ("Coding Agent", "G01"),
+        ("Research Agent", "G02"),
+        ("Browser Agent", "G03"),
+        ("RAG Assistant", "G04"),
+        ("Knowledge Management", "G05"),
+        ("Workflow Automation", "G06"),
+        ("Customer Support", "G07"),
+        ("Multi-Agent Systems", "G08"),
+        ("Voice Agent", "G09"),
+        ("Data Analysis", "G10"),
+        ("Evaluation Systems", "G11"),
+        ("Content Generation", "G12"),
+    ],
+)
+def test_canonical_goals_produce_real_recommendations(engine, goal, expected_goal_id):
+    result = engine.recommend(goal)
+
+    assert "error" not in result
+    assert result["goal_id"] == expected_goal_id
+    assert result["taxonomy_skills"]
+    assert result["required_skills"] or result["optional_skills"]
+
+    ids = [s["id"] for s in result["required_skills"] + result["optional_skills"]]
+    assert len(ids) == len(set(ids))
+
+
+def test_subgoal_resolution_uses_detailed_skill_mapping(engine):
+    result = engine.recommend("G01.1")
+
+    assert "error" not in result
+    assert result["goal_id"] == "G01.1"
+    assert {s["id"] for s in result["taxonomy_skills"]} >= {
+        "code-generation",
+        "prompt-engineering",
+        "tool-use",
+    }
+
+
+def test_parent_goal_aggregates_subgoal_mappings(engine):
+    result = engine.recommend("G01")
+    ids = {s["id"] for s in result["taxonomy_skills"]}
+
+    assert len(ids) >= 5
+    assert {"code-generation", "code-analysis", "planning"}.issubset(ids)
+
+
+def test_recommendation_contains_real_scoring_and_evidence(engine):
+    result = engine.recommend("Coding Agent")
+    skills = result["required_skills"] + result["optional_skills"]
+
+    assert skills
+    for skill in skills:
+        assert isinstance(skill["score"], (int, float))
+        assert "score_breakdown" in skill
+        assert "evidence" in skill
+        assert "confidence" in skill
+        assert 0.0 <= skill["confidence"] <= 1.0
+        assert skill["explanation"]
+
+
+def test_required_and_optional_sets_follow_taxonomy_priority(engine):
+    result = engine.recommend("RAG Assistant")
+    taxonomy = {x["id"]: x for x in result["taxonomy_skills"]}
+
+    assert result["required_skills"]
+    assert result["optional_skills"]
+    assert all(
+        taxonomy[s["id"]]["priority"].lower() in {"critical", "high"}
+        for s in result["required_skills"]
+    )
+    assert all(
+        taxonomy[s["id"]]["priority"].lower() in {"medium", "low"}
+        for s in result["optional_skills"]
+    )
+
+
+def test_rank_order_is_deterministic_and_monotonic(engine):
+    first = engine.recommend("Browser Agent")
+    second = engine.recommend("Browser Agent")
+
+    def projection(result):
+        return [
+            (s["id"], s["rank"], s["score"], s["confidence"])
+            for s in result["required_skills"] + result["optional_skills"]
         ]
-        for rec in recs:
-            assert 0.0 <= rec["score"] <= 1.0
 
-    def test_recommendations_sorted_by_score(self):
-        """Test 4: Recommendations sorted by score descending"""
-        recs = [
-            {"skill_id": "a", "score": 0.9},
-            {"skill_id": "b", "score": 0.7},
-            {"skill_id": "c", "score": 0.5}
-        ]
-        scores = [r["score"] for r in recs]
-        assert scores == sorted(scores, reverse=True)
+    first_projection = projection(first)
+    second_projection = projection(second)
+    assert first_projection == second_projection
 
-    def test_priority_levels_valid(self):
-        """Test 5: Priority levels are from valid set"""
-        valid_priorities = {"high", "medium", "low"}
-        recs = [
-            {"priority": "high"},
-            {"priority": "medium"},
-            {"priority": "low"}
-        ]
-        for rec in recs:
-            assert rec["priority"] in valid_priorities
-
-    def test_skill_id_uniqueness(self):
-        """Test 6: Skill IDs are unique in recommendations"""
-        recs = [
-            {"skill_id": "python"},
-            {"skill_id": "javascript"},
-            {"skill_id": "docker"}
-        ]
-        skill_ids = [r["skill_id"] for r in recs]
-        assert len(skill_ids) == len(set(skill_ids))
-
-    def test_reason_field_non_empty(self):
-        """Test 7: Reason field is non-empty string"""
-        rec = {"skill_id": "react", "reason": "complements existing skills"}
-        assert isinstance(rec["reason"], str)
-        assert len(rec["reason"]) > 0
-
-    def test_recommendations_limit(self):
-        """Test 8: Recommendations list respects max limit"""
-        max_recs = 10
-        recs = [{"skill_id": f"skill_{i}", "score": 0.5} for i in range(15)]
-        limited_recs = recs[:max_recs]
-        assert len(limited_recs) <= max_recs
-
-    def test_filter_by_priority(self):
-        """Test 9: Filter recommendations by priority level"""
-        recs = [
-            {"skill_id": "a", "priority": "high"},
-            {"skill_id": "b", "priority": "low"},
-            {"skill_id": "c", "priority": "high"}
-        ]
-        high_priority = [r for r in recs if r["priority"] == "high"]
-        assert len(high_priority) == 2
-
-    def test_recommendation_metadata(self):
-        """Test 10: Recommendations include optional metadata"""
-        rec = {
-            "skill_id": "kubernetes",
-            "score": 0.85,
-            "metadata": {
-                "estimated_time": "20h",
-                "difficulty": "advanced"
-            }
-        }
-        assert "metadata" in rec
-        assert "estimated_time" in rec["metadata"]
+    ranks = [row[1] for row in first_projection]
+    scores = [row[2] for row in first_projection]
+    assert ranks == list(range(1, len(ranks) + 1))
+    assert scores == sorted(scores, reverse=True)
 
 
-class TestRecommendationEngineLogic:
-    """Tests for recommendation logic and algorithms"""
+def test_unknown_goal_fails_cleanly(engine):
+    result = engine.recommend("definitely-not-a-real-goal")
 
-    def test_goal_based_recommendations(self):
-        """Test 11: Recommendations based on user goal"""
-        goal = "fullstack_developer"
-        expected_skills = {"javascript", "react", "node", "database"}
-        recommendations = [
-            {"skill_id": "javascript", "goal": goal},
-            {"skill_id": "react", "goal": goal}
-        ]
-        for rec in recommendations:
-            assert rec["skill_id"] in expected_skills
+    assert "error" in result
+    assert "Unknown goal" in result["error"]
 
-    def test_prerequisite_recommendations(self):
-        """Test 12: Prerequisites recommended before advanced skills"""
-        recs = [
-            {"skill_id": "html", "type": "prerequisite", "order": 1},
-            {"skill_id": "css", "type": "prerequisite", "order": 2},
-            {"skill_id": "react", "type": "advanced", "order": 3}
-        ]
-        prereqs = [r for r in recs if r["type"] == "prerequisite"]
-        assert len(prereqs) == 2
-        assert all(r["order"] < 3 for r in prereqs)
 
-    def test_skill_gap_analysis(self):
-        """Test 13: Identify skill gaps based on current skills"""
-        current_skills = {"python", "sql"}
-        target_skills = {"python", "sql", "docker", "kubernetes"}
-        gaps = target_skills - current_skills
-        assert "docker" in gaps
-        assert "kubernetes" in gaps
-        assert len(gaps) == 2
+def test_learning_path_is_unique_and_json_safe(engine):
+    import json
 
-    def test_recommendation_diversity(self):
-        """Test 14: Recommendations include diverse skill categories"""
-        recs = [
-            {"skill_id": "python", "category": "language"},
-            {"skill_id": "docker", "category": "tool"},
-            {"skill_id": "aws", "category": "cloud"}
-        ]
-        categories = {r["category"] for r in recs}
-        assert len(categories) == 3
+    result = engine.recommend("Coding Agent")
+    path = result["learning_path"]
 
-    def test_time_based_filtering(self):
-        """Test 15: Filter by available time budget"""
-        time_budget = 40  # hours
-        recs = [
-            {"skill_id": "a", "time_estimate": 10},
-            {"skill_id": "b", "time_estimate": 20},
-            {"skill_id": "c", "time_estimate": 30}
-        ]
-        total_time = sum(r["time_estimate"] for r in recs[:2])
-        assert total_time <= time_budget
+    assert path
+    path_ids = [node["id"] for node in path]
+    assert len(path_ids) == len(set(path_ids))
+    json.dumps(path)
 
-    def test_difficulty_progression(self):
-        """Test 16: Recommendations follow difficulty progression"""
-        recs = [
-            {"skill_id": "a", "difficulty": "beginner", "order": 1},
-            {"skill_id": "b", "difficulty": "intermediate", "order": 2},
-            {"skill_id": "c", "difficulty": "advanced", "order": 3}
-        ]
-        difficulties = [r["difficulty"] for r in recs]
-        assert difficulties == ["beginner", "intermediate", "advanced"]
 
-    def test_exclude_already_known_skills(self):
-        """Test 17: Exclude skills user already knows"""
-        known_skills = {"python", "javascript"}
-        all_recs = [
-            {"skill_id": "python"},
-            {"skill_id": "docker"},
-            {"skill_id": "javascript"}
-        ]
-        filtered = [r for r in all_recs if r["skill_id"] not in known_skills]
-        assert len(filtered) == 1
-        assert filtered[0]["skill_id"] == "docker"
+def test_real_api_recommendation_contract():
+    from fastapi.testclient import TestClient
+    from api.main import app
 
-    def test_synergy_based_recommendations(self):
-        """Test 18: Recommend skills with high synergy"""
-        current_skills = ["react"]
-        synergies = {
-            "redux": 0.9,  # high synergy with react
-            "vue": 0.3,    # low synergy
-            "typescript": 0.85  # high synergy
-        }
-        high_synergy = {k: v for k, v in synergies.items() if v > 0.7}
-        assert "redux" in high_synergy
-        assert "typescript" in high_synergy
+    response = TestClient(app).post(
+        "/recommend",
+        json={"goal": "Coding Agent", "experience": "intermediate"},
+    )
 
-    def test_learning_path_continuity(self):
-        """Test 19: Recommendations form continuous learning path"""
-        path = [
-            {"skill_id": "html", "next": "css"},
-            {"skill_id": "css", "next": "javascript"},
-            {"skill_id": "javascript", "next": "react"}
-        ]
-        for i in range(len(path) - 1):
-            assert path[i]["next"] == path[i + 1]["skill_id"]
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["goal_id"] == "G01"
+    assert data["required_skills"]
+    assert data["calibration_applied"] is True
 
-    def test_career_goal_alignment(self):
-        """Test 20: Recommendations align with career goals"""
-        career_goal = "data_scientist"
-        aligned_skills = {"python", "pandas", "scikit-learn", "tensorflow"}
-        recs = [
-            {"skill_id": "python", "career_goals": ["data_scientist"]},
-            {"skill_id": "pandas", "career_goals": ["data_scientist"]}
-        ]
-        for rec in recs:
-            assert career_goal in rec["career_goals"]
+    scores = [s["score"] for s in data["required_skills"]]
+    assert scores == sorted(scores, reverse=True)
+    assert all(s["score"] is not None for s in data["required_skills"])
+
+
+def test_api_rejects_unknown_goal():
+    from fastapi.testclient import TestClient
+    from api.main import app
+
+    response = TestClient(app).post(
+        "/recommend",
+        json={"goal": "definitely-not-a-real-goal", "experience": "intermediate"},
+    )
+
+    assert response.status_code == 404

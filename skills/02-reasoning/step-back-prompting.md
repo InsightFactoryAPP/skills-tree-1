@@ -7,6 +7,7 @@ description: "Prompt the LLM to first answer a high-level abstraction (the 'step
 added: "2025-06"
 version: v2
 tags: [reasoning, prompting, abstraction, principles]
+related: [prompt-engineering, least-to-most, ../09-agentic-patterns/rag]
 updated: "2026-06"
 ---
 
@@ -62,21 +63,18 @@ Principle: {principle}
 Using the above principle, answer: {question}"""
 
 def step_back_prompting(question: str) -> dict:
-    # Step 1: Generate step-back question
     sb_resp = client.messages.create(
         model=MODEL, max_tokens=256,
         messages=[{"role": "user", "content": STEP_BACK_PROMPT.format(question=question)}]
     )
     step_back_q = sb_resp.content[0].text.strip()
 
-    # Step 2: Answer the step-back question to get the principle
     principle_resp = client.messages.create(
         model=MODEL, max_tokens=512,
         messages=[{"role": "user", "content": step_back_q}]
     )
     principle = principle_resp.content[0].text.strip()
 
-    # Step 3: Answer original with grounded principle
     final_resp = client.messages.create(
         model=MODEL, max_tokens=1024,
         messages=[{"role": "user", "content": ANSWER_PROMPT.format(
@@ -97,7 +95,7 @@ if __name__ == "__main__":
 
 | Failure | Cause | Mitigation |
 |---|---|---|
-| Generic step-back question | Model doesn't understand domain | Provide domain hint in prompt |
+| Generic step-back question | Model doesn't understand domain | Provide domain hint for better generation |
 | Principle contradicts answer | Model ignores grounding context | Explicitly reference principle in answer prompt |
 | Extra latency not justified | Simple questions don't need abstraction | Gate on question complexity score |
 
@@ -112,7 +110,7 @@ if __name__ == "__main__":
 - [Chain of Thought](../09-agentic-patterns/cot.md) — linear reasoning; Step-Back adds principled grounding
 - [Prompt Engineering](prompt-engineering.md) — prerequisite skill
 - [Least-to-Most Prompting](least-to-most.md) — complementary decomposition approach
-- [RAG Pattern](../09-agentic-patterns/rag-pattern.md) — Step-Back improves RAG query formulation
+- [RAG Pattern](../09-agentic-patterns/rag.md) — Step-Back improves RAG query formulation
 
 ## Changelog
 

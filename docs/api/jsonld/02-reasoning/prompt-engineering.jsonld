@@ -1,0 +1,85 @@
+{
+  "@context": [
+    "https://schema.org",
+    {
+      "ai-skill": "https://samotech.github.io/skills-tree/api/context#",
+      "skillId": {
+        "@id": "ai-skill:skillId"
+      },
+      "skillVersion": {
+        "@id": "ai-skill:skillVersion"
+      },
+      "skillLevel": {
+        "@id": "ai-skill:skillLevel"
+      },
+      "skillStability": {
+        "@id": "ai-skill:skillStability"
+      },
+      "categoryDir": {
+        "@id": "ai-skill:categoryDir"
+      },
+      "sections": {
+        "@id": "ai-skill:sections",
+        "@container": "@list"
+      },
+      "relatedSkills": {
+        "@id": "ai-skill:relatedSkills",
+        "@container": "@list"
+      },
+      "failureModes": {
+        "@id": "ai-skill:failureModes"
+      },
+      "promptPatterns": {
+        "@id": "ai-skill:promptPatterns"
+      }
+    }
+  ],
+  "@type": "TechArticle",
+  "@id": "https://github.com/SamoTech/skills-tree/blob/main/skills/02-reasoning/prompt-engineering.md",
+  "name": "Prompt Engineering",
+  "headline": "Prompt Engineering",
+  "description": "Design, structure, test, and refine prompts so language models receive clear objectives, constraints, context, output contracts, and evaluation criteria.",
+  "url": "https://github.com/SamoTech/skills-tree/blob/main/skills/02-reasoning/prompt-engineering.md",
+  "isPartOf": {
+    "@type": "Dataset",
+    "@id": "https://samotech.github.io/skills-tree/api/skills.json",
+    "name": "Skills Tree — AI Agent Skill Index",
+    "url": "https://samotech.github.io/skills-tree"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "SamoTech",
+    "url": "https://github.com/SamoTech"
+  },
+  "inLanguage": "en",
+  "dateModified": "2026-09-17T15:58:06Z",
+  "skillId": "prompt-engineering",
+  "skillVersion": "v1",
+  "skillLevel": "intermediate",
+  "skillStability": "stable",
+  "categoryDir": "02-reasoning",
+  "sections": [
+    "Description",
+    "When to Use",
+    "Inputs / Outputs",
+    "Core Practices",
+    "Failure Modes",
+    "Related Skills",
+    "Changelog"
+  ],
+  "relatedSkills": [
+    "../09-agentic-patterns/react.md"
+  ],
+  "educationalLevel": {
+    "@type": "DefinedTerm",
+    "name": "Intermediate",
+    "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
+  },
+  "datePublished": "2025-03-01",
+  "keywords": "reasoning, prompt, AI agent, LLM skill, engineering, skills tree",
+  "about": {
+    "@type": "Thing",
+    "name": "Prompt Engineering",
+    "description": "An AI agent skill for prompt engineering."
+  }
+}

@@ -7,6 +7,7 @@ description: "Break a complex agent goal into an ordered sequence of actionable 
 added: "2025-06"
 version: v3
 tags: [reasoning, planning, decomposition, agent-design]
+related: [goal-decomposition, ../09-agentic-patterns/plan-and-execute, ../09-agentic-patterns/react]
 updated: "2026-06"
 prerequisites:
   - 02-reasoning/goal-decomposition
@@ -101,7 +102,7 @@ if __name__ == "__main__":
 - [Plan-and-Execute](../09-agentic-patterns/plan-and-execute.md) — the agentic pattern that executes decomposed plans
 - [Goal Decomposition](goal-decomposition.md) — operates at intent level; precedes planning decomposition
 - [Least-to-Most Prompting](least-to-most.md) — reasoning-level analogue
-- [ReAct Pattern](../09-agentic-patterns/react-pattern.md) — executes individual plan steps
+- [ReAct Pattern](../09-agentic-patterns/react.md) — executes individual plan steps
 - [Subagent Delegation](../09-agentic-patterns/subagent-delegation.md) — assigns plan tasks to sub-agents
 
 ## Changelog

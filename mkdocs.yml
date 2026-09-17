@@ -58,7 +58,6 @@ markdown_extensions:
       generic: true
   - pymdownx.betterem
   - pymdownx.caret
-  - pymdownx.details
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -88,6 +87,9 @@ nav:
     - Quick Start: quickstart.md
   - Concepts:
     - Architecture: architecture.md
+    - Current Architecture: architecture/CURRENT_ARCHITECTURE.md
+    - Target Architecture: architecture/TARGET_ARCHITECTURE.md
+    - ADR-001 Runtime Taxonomy Adapter: architecture/ADR-001-runtime-taxonomy-adapter.md
     - Why Skills Tree: WHY_SKILLS_TREE.md
     - Use Cases: USE_CASES.md
   - Reference:
