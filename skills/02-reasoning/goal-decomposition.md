@@ -7,6 +7,7 @@ description: "Break a high-level user intent or agent objective into a hierarchy
 added: "2025-06"
 version: v2
 tags: [reasoning, planning, goals, decomposition]
+related: [planning-decomposition, least-to-most, plan-and-execute]
 updated: "2026-06"
 ---
 
