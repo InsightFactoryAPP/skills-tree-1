@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""
-FastAPI dependency-injection providers.
-Instances are created once at app startup and reused across requests.
-"""
+"""FastAPI dependency-injection providers."""
 
 from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+import sys
 
 
 def _repo_root() -> Path:
-    """Walk up from this file until we find the repo root (has 'tools/' dir)."""
     here = Path(__file__).resolve().parent
     for candidate in [here, here.parent, here.parent.parent]:
         if (candidate / "tools" / "architect.py").exists():
@@ -24,21 +21,22 @@ TAXONOMY_PATH = ROOT / "meta" / "GOAL_TAXONOMY.md"
 GRAPH_PATH = ROOT / "data" / "SKILLS_GRAPH.json"
 BM_INDEX_PATH = ROOT / "benchmarks" / "INDEX.json"
 
-import sys
-
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.architect import SkillsGraph, RecommendationEngine, BlueprintGenerator
-from tools.taxonomy_runtime import RuntimeGoalTaxonomyParser
+# Load the runtime compatibility module first. It patches the legacy parser's
+# Level-4 mapping and alias behavior, so every application surface shares one
+# taxonomy implementation rather than maintaining divergent parser semantics.
+import tools.taxonomy_runtime as _taxonomy_runtime  # noqa: F401
+from tools.architect import GoalTaxonomyParser, SkillsGraph, RecommendationEngine, BlueprintGenerator
 from tools.ranking_calibrator import RankingCalibrator
 
 
 @lru_cache(maxsize=1)
-def get_taxonomy() -> RuntimeGoalTaxonomyParser:
+def get_taxonomy() -> GoalTaxonomyParser:
     if not TAXONOMY_PATH.exists():
         raise FileNotFoundError(f"GOAL_TAXONOMY.md not found at {TAXONOMY_PATH}")
-    return RuntimeGoalTaxonomyParser(str(TAXONOMY_PATH))
+    return GoalTaxonomyParser(str(TAXONOMY_PATH))
 
 
 @lru_cache(maxsize=1)
