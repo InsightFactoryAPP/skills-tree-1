@@ -25,6 +25,7 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
         re.MULTILINE,
     )
     _GOAL_BASELINE_MAPPINGS = {
+        "G02": [("web-search", "Critical", 4), ("web-scraping", "High", 4), ("reasoning-chains", "High", 6)],
         "G03": [("knowledge-graph-reading", "Critical", 5), ("context-management", "High", 4), ("rag-retrieval", "High", 5)],
         "G04": [("web-search", "Critical", 4), ("web-scraping", "High", 4), ("reasoning-chains", "High", 6)],
         "G05": [("knowledge-graph-reading", "Critical", 5), ("context-management", "High", 4), ("rag-retrieval", "High", 5)],
@@ -50,6 +51,9 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
         for goal_id, entries in self._GOAL_BASELINE_MAPPINGS.items():
             if not self._skill_maps.get(goal_id):
                 self._skill_maps[goal_id] = [self._skill(*entry) for entry in entries]
+        g04 = self._skill_maps.get("G04", [])
+        if g04 and not any(s["id"] == "citation-linking" for s in g04):
+            g04.append(self._skill("citation-linking", "Medium", 3))
 
     def _parse_level4_subgoals(self) -> None:
         for match in self._SUBGOAL_MAPPING_RE.finditer(self._raw):
@@ -97,7 +101,10 @@ def _parse_skill_mappings_with_level4(self: GoalTaxonomyParser) -> None:
 def _skills_for_with_level4(self: GoalTaxonomyParser, goal_id: str) -> List[Dict]:
     exact = self._skill_maps.get(goal_id)
     if exact:
-        return list(exact)
+        result = list(exact)
+        if goal_id == "G04" and not any(s["id"] == "citation-linking" for s in result):
+            result.append(RuntimeGoalTaxonomyParser._skill("citation-linking", "Medium", 3))
+        return result
     if "." not in goal_id:
         parent_prefix = f"{goal_id}."
         merged: "OrderedDict[str, Dict]" = OrderedDict()
@@ -106,7 +113,10 @@ def _skills_for_with_level4(self: GoalTaxonomyParser, goal_id: str) -> List[Dict
                 for skill in self._skill_maps[subgoal_id]:
                     merged.setdefault(skill["id"], dict(skill))
         if merged:
-            return list(merged.values())
+            result = list(merged.values())
+            if goal_id == "G04" and not any(s["id"] == "citation-linking" for s in result):
+                result.append(RuntimeGoalTaxonomyParser._skill("citation-linking", "Medium", 3))
+            return result
         baseline = RuntimeGoalTaxonomyParser._GOAL_BASELINE_MAPPINGS.get(goal_id)
         if baseline:
             return [RuntimeGoalTaxonomyParser._skill(*entry) for entry in baseline]
