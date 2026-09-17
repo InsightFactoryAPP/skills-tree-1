@@ -28,7 +28,7 @@ The repository already contains concrete integration boundaries, but they are no
 
 ## Verified concrete boundary: MCP
 
-The current MCP server implements a minimal JSON-RPC 2.0 stdio boundary supporting `initialize`, `tools/list`, and `tools/call`. Its advertised tools are `recommend_skills`, `generate_blueprint`, `list_goals`, and `list_skills`. cite is intentionally not used inside repository documentation; source paths above are the provenance record.
+The current MCP server implements a minimal JSON-RPC 2.0 stdio boundary supporting `initialize`, `tools/list`, and `tools/call`. Its advertised tools are `recommend_skills`, `generate_blueprint`, `list_goals`, and `list_skills`.
 
 `mcp/tools.py` delegates calls to the existing FastAPI application through `TestClient`, rather than duplicating recommendation or blueprint business logic. This makes the MCP layer a real integration boundary over the existing API stack, while keeping the API itself a separate interface entity.
 
