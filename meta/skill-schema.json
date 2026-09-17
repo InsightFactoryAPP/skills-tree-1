@@ -41,7 +41,7 @@
     "stability": {
       "type": "string",
       "description": "How stable/mature this skill is",
-      "enum": ["stable", "experimental", "deprecated"]
+      "enum": ["stable", "evolving", "experimental", "deprecated"]
     },
     "version": {
       "type": "string",
