@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:56:17Z",
+  "dateModified": "2026-09-17T15:56:36Z",
   "skillId": "debate",
   "skillVersion": null,
   "skillLevel": "advanced",
@@ -68,7 +68,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "LLM skill, AI agent, skills tree, communication, debate",
+  "keywords": "AI agent, communication, debate, LLM skill, skills tree",
   "about": {
     "@type": "Thing",
     "name": "Debate",

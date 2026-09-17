@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:56:17Z",
+  "dateModified": "2026-09-17T15:56:36Z",
   "skillId": "statistical-analysis",
   "skillVersion": null,
   "skillLevel": "intermediate",
@@ -66,7 +66,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "LLM skill, statistical, AI agent, skills tree, data, analysis",
+  "keywords": "AI agent, statistical, analysis, LLM skill, skills tree, data",
   "about": {
     "@type": "Thing",
     "name": "Statistical Analysis",

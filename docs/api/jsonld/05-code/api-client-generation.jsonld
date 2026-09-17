@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:56:17Z",
+  "dateModified": "2026-09-17T15:56:36Z",
   "skillId": "api-client-generation",
   "skillVersion": null,
   "skillLevel": "intermediate",
@@ -68,7 +68,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "generation, LLM skill, AI agent, api, client, skills tree, code",
+  "keywords": "AI agent, api, generation, LLM skill, client, skills tree, code",
   "about": {
     "@type": "Thing",
     "name": "API Client Generation",
