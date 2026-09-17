@@ -44,13 +44,7 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
 
     @staticmethod
     def _skill(skill_id: str, priority: str, learn_time_hrs: int) -> Dict:
-        return {
-            "id": skill_id,
-            "name": skill_id.replace("-", " ").replace(":", " ").title(),
-            "category": "",
-            "priority": priority,
-            "learn_time_hrs": learn_time_hrs,
-        }
+        return {"id": skill_id, "name": skill_id.replace("-", " ").replace(":", " ").title(), "category": "", "priority": priority, "learn_time_hrs": learn_time_hrs}
 
     def _ensure_goal_baselines(self) -> None:
         for goal_id, entries in self._GOAL_BASELINE_MAPPINGS.items():
@@ -68,7 +62,7 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
 
     def skills_for(self, goal_id: str) -> List[Dict]:
         exact = self._skill_maps.get(goal_id)
-        if exact is not None:
+        if exact:
             return list(exact)
         if "." not in goal_id:
             parent_prefix = f"{goal_id}."
@@ -79,6 +73,9 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
                         merged.setdefault(skill["id"], dict(skill))
             if merged:
                 return list(merged.values())
+        baseline = self._GOAL_BASELINE_MAPPINGS.get(goal_id)
+        if baseline:
+            return [self._skill(*entry) for entry in baseline]
         return super().skills_for(goal_id)
 
 
@@ -99,7 +96,7 @@ def _parse_skill_mappings_with_level4(self: GoalTaxonomyParser) -> None:
 
 def _skills_for_with_level4(self: GoalTaxonomyParser, goal_id: str) -> List[Dict]:
     exact = self._skill_maps.get(goal_id)
-    if exact is not None:
+    if exact:
         return list(exact)
     if "." not in goal_id:
         parent_prefix = f"{goal_id}."
