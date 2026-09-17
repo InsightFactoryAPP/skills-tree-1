@@ -1,0 +1,61 @@
+name: Repair PR 93 CI blockers
+
+on:
+  push:
+    branches:
+      - agent/production-hardening-20260917
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply targeted fixes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('tools/architect.py')
+          s = p.read_text(encoding='utf-8')
+          old = "    print(f\"\\n{'\\u2500'*70}\\nREQUIRED SKILLS (sorted by score \\\u2193):\")"
+          new = "    separator = '\\u2500' * 70\n    print(f\"\\n{separator}\\nREQUIRED SKILLS (sorted by score ↓):\")"
+          assert old in s
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+          p = Path('tests/test_cli.py')
+          s = p.read_text(encoding='utf-8')
+          assert 'runner = CliRunner(mix_stderr=False)' in s
+          p.write_text(s.replace('runner = CliRunner(mix_stderr=False)', 'runner = CliRunner()', 1), encoding='utf-8')
+
+          p = Path('skills/02-reasoning/prompt-engineering.md')
+          s = p.read_text(encoding='utf-8')
+          marker = '## Failure Modes\n'
+          example = '''## Runnable Example
+
+```python
+def build_prompt(task: str, constraints: list[str]) -> str:
+    return f"Task: {task}\\nConstraints: {', '.join(constraints)}\\nReturn JSON only."
+
+print(build_prompt("classify support tickets", ["no speculation", "include confidence"]))
+```
+
+'''
+          assert marker in s
+          if '## Runnable Example' not in s:
+              s = s.replace(marker, example + marker, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit fixes and remove repair workflow
+        run: |
+          rm -f .github/workflows/repair-pr93.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tools/architect.py tests/test_cli.py skills/02-reasoning/prompt-engineering.md .github/workflows/repair-pr93.yml
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: clear PR 93 CI blockers'
+          git push
