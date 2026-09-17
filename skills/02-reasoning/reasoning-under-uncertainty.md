@@ -7,6 +7,7 @@ description: "Reason and make decisions when information is incomplete, ambiguou
 added: "2025-06"
 version: v2
 tags: [reasoning, uncertainty, calibration, confidence]
+related: [self-consistency, hypothesis-generation, ../09-agentic-patterns/reflection]
 updated: "2026-06"
 ---
 
@@ -63,18 +64,14 @@ Question: {question}
 Evidence: {evidence}
 Confidence threshold to proceed: {threshold}"""
 
-def reason_under_uncertainty(
-    question: str,
-    evidence: list[str],
-    confidence_threshold: float = 0.7
-) -> dict:
+def reason_under_uncertainty(question: str, evidence: list[str], confidence_threshold: float = 0.7) -> dict:
     resp = client.messages.create(
         model=MODEL, max_tokens=1024,
         messages=[{"role": "user", "content": RUU_PROMPT.format(
             question=question,
             evidence="\n".join(f"- {e}" for e in evidence),
             threshold=confidence_threshold
-        )}]
+        )]
     )
     text = resp.content[0].text.strip()
     start = text.find("{")
@@ -84,12 +81,7 @@ def reason_under_uncertainty(
 if __name__ == "__main__":
     result = reason_under_uncertainty(
         question="Was the API outage caused by the deployment at 14:00?",
-        evidence=[
-            "Deployment occurred at 14:00",
-            "Error rate spiked at 14:02",
-            "Another team reported network issues at 13:55",
-            "Rollback at 14:15 restored 80% of traffic"
-        ]
+        evidence=["Deployment occurred at 14:00", "Error rate spiked at 14:02", "Another team reported network issues at 13:55", "Rollback at 14:15 restored 80% of traffic"]
     )
     print(f"Answer: {result['answer']}")
     print(f"Confidence: {result['confidence']:.0%}")
