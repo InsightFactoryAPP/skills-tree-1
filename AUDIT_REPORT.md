@@ -42,27 +42,38 @@ GoalTaxonomyParser -----> RecommendationEngine <----- SkillsGraph (data/SKILLS_G
 
 | ID | Severity | Finding | Evidence | Impact |
 |---|---|---|---|---|
-| AUD-001 | P1 | Parent-goal resolution does not reliably consume the Level-4 sub-goal skill lists. | Taxonomy stores most detailed mappings under `#### Gxx.y` sections, while `GoalTaxonomyParser._parse_skill_mappings()` primarily scans `###` mapping sections and `skills_for()` only falls back from a sub-goal to its parent. | A canonical goal such as `Coding Agent` can resolve successfully while producing an incomplete/empty skill set. |
-| AUD-002 | P1 | Recommendation tests are synthetic rather than behavioral. | `tests/test_recommendations.py` constructs dictionaries/lists directly and never instantiates `RecommendationEngine`. | Core recommendation behavior can regress while the suite remains green. |
-| AUD-003 | P1 | Blueprint tests are synthetic rather than behavioral. | `tests/test_blueprints.py` constructs blueprint dictionaries directly and never calls `BlueprintGenerator`. | Blueprint generation regressions can pass CI unnoticed. |
-| AUD-004 | P1 | Calibration can reorder skills using positional synthetic base scores when passed skill IDs, while API summaries retain the pre-calibration score. | `RankingCalibrator._normalise_input()` assigns `10.0 - index` to ID-only inputs; `/recommend` calls `calibrate_ids()` and `_to_summary()` reads the original `s["score"]`. | Ranking and displayed score can describe different orderings; calibration is not traceable to the score shown to clients. |
-| AUD-005 | P1 | Consistency scenario metadata is stale relative to the current goal taxonomy. | `evaluation/consistency_suite.json` maps Browser Agent to `G02`, Memory Agent to `G03`, and other goals that no longer match the current 12-category taxonomy. | A parity suite can validate the wrong semantic contract. |
-| AUD-006 | P1 | Experience level is accepted by the API contract but is not used by `RecommendationEngine.recommend()`. | Request model validates `experience`, but the engine signature only accepts `goal_query`. | User context promised by the public API does not affect recommendation behavior. |
-| AUD-007 | P1 | Time-budget filtering is presentation-layer logic and only filters required skills. | `api/routes/recommend.py` filters `required_skills` after calibration and leaves optional skills unchanged. | Budget-constrained output can exceed the stated budget semantically and required/optional behavior is inconsistent. |
-| AUD-008 | P2 | Blueprint IDs and timestamps are generated from wall-clock time. | `BlueprintGenerator.generate()` uses `datetime.now()` for both `id` and `generated_at`. | Blueprint content is not fully reproducible even when all inputs are identical. |
-| AUD-009 | P2 | Framework evidence is goal-level maximum framework strength, not skill-level framework evidence. | `EvidenceDeriver.derive()` receives `top_fw_stars` and applies it to each skill. | Explanations can imply skill-level framework alignment that is not actually evidenced at skill level. |
-| AUD-010 | P2 | CLI and MCP use `FastAPI TestClient` as their application integration mechanism. | `cli/main.py` and `mcp/tools.py` construct in-process `TestClient` instances. | Domain/application logic is coupled to the HTTP transport and harder to test independently. |
-| AUD-011 | P2 | API uses wildcard CORS and exposes exception strings through the 404/422/500 error contracts. | `api/main.py` sets `allow_origins=["*"]`, wildcard methods/headers, and serializes `str(exc)` as `detail`. | Production hardening and information-disclosure risk. |
+| AUD-001 | P1 | Parent-goal resolution does not reliably consume the Level-4 sub-goal skill lists. | Taxonomy stores detailed mappings under `#### Gxx.y` sections, while the original parser primarily scans `###` mapping sections. | Canonical goals can resolve successfully while producing incomplete/empty skill sets. |
+| AUD-002 | P1 | Recommendation tests were synthetic rather than behavioral. | Original `tests/test_recommendations.py` constructed dictionaries/lists directly and never instantiated `RecommendationEngine`. | Core recommendation behavior could regress while the suite remained green. **Remediated on hardening branch.** |
+| AUD-003 | P1 | Blueprint tests were synthetic rather than behavioral. | Original `tests/test_blueprints.py` constructed blueprint dictionaries directly and never called `BlueprintGenerator`. | Blueprint regressions could pass CI. **Remediated on hardening branch.** |
+| AUD-004 | P1 | Calibration could reorder skills using positional synthetic base scores while API summaries retained pre-calibration scores. | `RankingCalibrator._normalise_input()` assigns `10.0 - index` to ID-only inputs; the API used `calibrate_ids()` and retained `s["score"]`. | Ranking and displayed score could describe different orderings. **Remediated on hardening branch by calibrating actual engine scores.** |
+| AUD-005 | P1 | Consistency scenario metadata is stale relative to the current goal taxonomy. | `evaluation/consistency_suite.json` maps Browser Agent to `G02`, while the current taxonomy defines Browser Agent as `G03`; several other mappings also drift. | A parity suite can validate the wrong semantic contract. |
+| AUD-006 | P1 | Experience level is accepted by the API contract but is not used by `RecommendationEngine.recommend()`. | Request model validates `experience`, but the engine signature only accepts `goal_query`. | User context promised by the API does not affect recommendation behavior. |
+| AUD-007 | P1 | Time-budget filtering is presentation-layer logic and only filters required skills. | `api/routes/recommend.py` filters `required_skills` after calibration and leaves optional skills unchanged. | Budget-constrained output can be semantically inconsistent. |
+| AUD-008 | P2 | Blueprint IDs and timestamps are generated from wall-clock time. | `BlueprintGenerator.generate()` uses `datetime.now()` for `id` and `generated_at`. | Blueprint content is not fully reproducible including identity metadata. |
+| AUD-009 | P2 | Framework evidence is goal-level maximum framework strength, not skill-level framework evidence. | `EvidenceDeriver.derive()` receives `top_fw_stars` and applies it to each skill. | Explanations can imply skill-level framework alignment without skill-level evidence. |
+| AUD-010 | P2 | CLI and MCP use `FastAPI TestClient` as their application integration mechanism. | `cli/main.py` and `mcp/tools.py` construct in-process `TestClient` instances. | Domain/application logic is coupled to the HTTP transport. |
+| AUD-011 | P2 | API uses wildcard CORS and exposes exception strings through error responses. | `api/main.py` uses wildcard CORS and serializes `str(exc)` as `detail`. | Production hardening and information-disclosure risk. |
 | AUD-012 | P2 | Calibration tables are hardcoded Python dictionaries. | `tools/ranking_calibrator.py` defines global, goal, and keyword adjustment tables in source. | Calibration changes are not independently versioned or traceable as data. |
-| AUD-013 | P2 | Core intelligence remains concentrated in `tools/architect.py`. | The module contains parser, graph, evidence, explanation, scoring, recommendation, and blueprint responsibilities. | High coupling and change-risk; extraction should follow a behavioral safety net. |
-| AUD-014 | P3 | Repository contains a large number of historical/sprint documents and generated artifacts. | Tree inspection shows extensive `meta/`, `evaluation/`, workflow, and generated-data surfaces. | Documentation/source-of-truth drift is harder to detect. |
+| AUD-013 | P2 | Core intelligence remains concentrated in `tools/architect.py`. | Parser, graph, evidence, explanation, scoring, recommendation, and blueprint responsibilities are in one module. | High coupling and change risk. Extraction should follow the behavioral safety net. |
+| AUD-014 | P3 | Repository contains extensive historical/sprint documentation and generated artifacts. | Tree inspection shows large `meta/`, `evaluation/`, workflow, and generated-data surfaces. | Documentation/source-of-truth drift is harder to detect. |
+| AUD-015 | P0 | Existing Test Suite CI was unable to execute its configured test command. | Workflow `.github/workflows/test.yml` invoked `pytest` with `--cov` and `-n`, but the workflow installed `requirements.txt` without `pytest-cov` or `pytest-xdist`. Verified from GitHub Actions run `35242169584`: Python 3.13 job failed with `pytest: error: unrecognized arguments: --cov=tools ... -n`. | CI was red independently of application correctness; test enforcement was non-functional. **Remediated on hardening branch by declaring both plugins and aligning Python versions.** |
+
+## Remediations already applied on hardening branch
+
+- Added `tools/taxonomy_runtime.py` as a compatibility-preserving runtime parser for detailed Level-4 sub-goal mappings.
+- API dependency construction now uses the runtime taxonomy adapter.
+- Replaced synthetic recommendation tests with real engine/API behavioral tests.
+- Replaced synthetic blueprint tests with real generator tests.
+- API calibration now receives actual engine scores and returns calibrated scores to clients.
+- Test CI now declares `pytest-cov` and `pytest-xdist` and tests only the Python versions supported by `pyproject.toml` (`3.11`–`3.13`).
+- Added current/target architecture documentation and ADR-001.
 
 ## Source-of-truth matrix
 
 | Domain | Current authoritative source | Assessment |
 |---|---|---|
 | Skills | `skills/` | Primary content source |
-| Goals | `meta/GOAL_TAXONOMY.md` | Primary taxonomy source; parser coverage needs hardening |
+| Goals | `meta/GOAL_TAXONOMY.md` | Primary taxonomy source; parser coverage hardened on branch |
 | Graph | `data/SKILLS_GRAPH.json` | Generated artifact; metadata says schema 3.1 |
 | Graph generation | `tools/build_graph.py` | Generator source |
 | Benchmarks | `benchmarks/INDEX.json` | Runtime evidence source |
@@ -82,7 +93,9 @@ GoalTaxonomyParser -----> RecommendationEngine <----- SkillsGraph (data/SKILLS_G
 
 ## CI assessment
 
-The repository has strong build-oriented workflow coverage, including wheel content verification and clean-install smoke tests. The clean-install workflow explicitly runs `pytest tests/` and API/CLI smoke tests. However, workflow presence is not proof of current green status. The latest remote workflow evidence inspected during this audit includes successful scheduled CodeQL runs for the audit baseline; a current full build/test run was not available from the GitHub connector during this audit.
+The repository has extensive CI coverage. During this hardening run, the existing Test Suite was directly inspected through GitHub Actions. Run `35242169584` failed on Python 3.13 before test collection because `pytest-cov` and `pytest-xdist` were not installed even though the command required their plugins. The workflow also tested Python 3.10 despite `pyproject.toml` declaring `requires-python = ">=3.11"`.
+
+A new commit containing the CI remediation is now on the hardening branch. GitHub Actions is the authoritative validation source; no local test result is claimed because the execution environment used for this work cannot resolve GitHub for cloning.
 
 ## Security assessment
 
@@ -90,19 +103,19 @@ The workflows inspected use explicit read-only `contents` permissions in the bui
 
 ## Immediate execution plan
 
-### P1 vertical slice
+### P1 vertical slice — in progress
 
-1. Establish real RecommendationEngine behavioral tests.
-2. Establish real BlueprintGenerator behavioral tests.
-3. Add deterministic/invariant assertions without overfitting floating-point values.
-4. Add a regression test for canonical parent-goal skill resolution.
-5. Route production taxonomy loading through a compatibility-preserving runtime adapter while the monolith remains intact.
-6. Validate the branch through GitHub CI before broader extraction.
+1. Establish real RecommendationEngine behavioral tests. **Done on branch.**
+2. Establish real BlueprintGenerator behavioral tests. **Done on branch.**
+3. Add deterministic/invariant assertions. **Done for initial recommendation/blueprint coverage.**
+4. Add a regression test for canonical parent-goal skill resolution. **Done on branch.**
+5. Route production taxonomy loading through a compatibility-preserving runtime adapter. **Done on branch.**
+6. Validate the branch through GitHub CI. **Pending final post-remediation run.**
 
 ### Next P1 slices
 
-- Correct calibration semantics and expose calibrated scores/version.
 - Reconcile consistency-suite goal IDs with the authoritative taxonomy.
 - Make experience and time constraints real application-level inputs.
 - Extract domain/application services incrementally.
+- Version calibration data and expose provenance.
 - Replace static goal-to-architecture selection with capability/graph-derived inference behind a compatibility fallback.
