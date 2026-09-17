@@ -1,4 +1,4 @@
-generated: '2026-09-17T15:58:06Z'
+generated: '2026-09-17T17:08:38Z'
 count: 369
 skills:
 - id: pipeline-test
@@ -1311,6 +1311,7 @@ skills:
   - Description
   - When to Use
   - Inputs / Outputs
+  - Minimal Runnable Pattern
   - Core Practices
   - Failure Modes
   - Related Skills

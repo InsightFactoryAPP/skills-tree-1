@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-09-17T15:58:06Z",
+  "dateModified": "2026-09-17T17:08:38Z",
   "skillId": "debate-pattern",
   "skillVersion": null,
   "skillLevel": "advanced",
@@ -66,7 +66,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "patterns, agentic, debate, AI agent, LLM skill, skills tree, pattern",
+  "keywords": "LLM skill, agentic, AI agent, pattern, patterns, debate, skills tree",
   "about": {
     "@type": "Thing",
     "name": "Debate Pattern",
