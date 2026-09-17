@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
-from api.dependencies import get_engine
+from api.dependencies import get_engine, get_calibrator
 from api.models import RecommendRequest, RecommendResponse, SkillSummary
 
 router = APIRouter(tags=["Recommendations"])
@@ -22,14 +22,29 @@ router = APIRouter(tags=["Recommendations"])
 )
 def recommend(body: RecommendRequest) -> RecommendResponse:
     engine = get_engine()
+    calibrator = get_calibrator()
 
     result = engine.recommend(body.goal)
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])
 
     goal_name = result["goal_name"]
+    goal_id = result["goal_id"]
 
-    def _to_summary(s: dict, rank: int) -> SkillSummary:
+    req_ids = calibrator.calibrate_ids(
+        [s["id"] for s in result["required_skills"]],
+        goal_id=goal_id,
+        goal_text=goal_name,
+    )
+    opt_ids = calibrator.calibrate_ids(
+        [s["id"] for s in result["optional_skills"]],
+        goal_id=goal_id,
+        goal_text=goal_name,
+    )
+    by_id = {s["id"]: s for s in result["required_skills"] + result["optional_skills"]}
+
+    def _to_summary(skill_id: str, rank: int) -> SkillSummary:
+        s = by_id[skill_id]
         return SkillSummary(
             id=s["id"],
             name=s.get("name", s["id"]),
@@ -44,17 +59,9 @@ def recommend(body: RecommendRequest) -> RecommendResponse:
             stability=s.get("stability"),
         )
 
-    required_skills = [
-        _to_summary(skill, i + 1)
-        for i, skill in enumerate(result["required_skills"])
-    ]
-    optional_skills = [
-        _to_summary(skill, len(required_skills) + i + 1)
-        for i, skill in enumerate(result["optional_skills"])
-    ]
+    required_skills = [_to_summary(skill_id, i + 1) for i, skill_id in enumerate(req_ids)]
+    optional_skills = [_to_summary(skill_id, len(required_skills) + i + 1) for i, skill_id in enumerate(opt_ids)]
 
-    # Filter required skills to the available time budget. This remains a
-    # presentation constraint until constraints are moved into the application layer.
     if body.time_budget_hours is not None:
         taxonomy_map = {s["id"]: s for s in result["taxonomy_skills"]}
         budget = body.time_budget_hours
@@ -72,13 +79,11 @@ def recommend(body: RecommendRequest) -> RecommendResponse:
         for n in result["learning_path"]
     ]
 
-    total_hrs = sum(
-        s.get("learn_time_hrs", 0) for s in result.get("taxonomy_skills", [])
-    )
+    total_hrs = sum(s.get("learn_time_hrs", 0) for s in result.get("taxonomy_skills", []))
 
     return RecommendResponse(
         goal=goal_name,
-        goal_id=result["goal_id"],
+        goal_id=goal_id,
         confidence_score=result["confidence_score"],
         required_skills=required_skills,
         optional_skills=optional_skills,
