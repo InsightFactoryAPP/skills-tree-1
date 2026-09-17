@@ -112,7 +112,7 @@ if __name__ == "__main__":
 - [Chain of Thought](../09-agentic-patterns/cot.md) — linear reasoning; Step-Back adds principled grounding
 - [Prompt Engineering](prompt-engineering.md) — prerequisite skill
 - [Least-to-Most Prompting](least-to-most.md) — complementary decomposition approach
-- [RAG Pattern](../09-agentic-patterns/rag-pattern.md) — Step-Back improves RAG query formulation
+- [RAG Pattern](../09-agentic-patterns/rag.md) — Step-Back improves RAG query formulation
 
 ## Changelog
 
