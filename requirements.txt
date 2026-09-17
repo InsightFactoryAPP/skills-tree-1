@@ -16,6 +16,7 @@ pytest>=8.2.0
 pytest-asyncio>=0.23.0
 pytest-cov>=5.0.0
 pytest-xdist>=3.5.0
+jsonschema>=4.23
 
 # Existing project deps
 networkx>=3.0
