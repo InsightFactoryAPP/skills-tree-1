@@ -30,25 +30,26 @@ def recommend(body: RecommendRequest) -> RecommendResponse:
 
     goal_name = result["goal_name"]
     goal_id = result["goal_id"]
+
+    req_ids = calibrator.calibrate_ids(
+        [s["id"] for s in result["required_skills"]],
+        goal_id=goal_id,
+        goal_text=goal_name,
+    )
+    opt_ids = calibrator.calibrate_ids(
+        [s["id"] for s in result["optional_skills"]],
+        goal_id=goal_id,
+        goal_text=goal_name,
+    )
     by_id = {s["id"]: s for s in result["required_skills"] + result["optional_skills"]}
 
-    def _calibrate(skills):
-        return calibrator.calibrate(
-            [(s["id"], s.get("score", 0.0)) for s in skills],
-            goal_id=goal_id,
-            goal_text=goal_name,
-        )
-
-    req_ranked = _calibrate(result["required_skills"])
-    opt_ranked = _calibrate(result["optional_skills"])
-
-    def _to_summary(skill_id: str, calibrated_score: float, rank: int) -> SkillSummary:
+    def _to_summary(skill_id: str, rank: int) -> SkillSummary:
         s = by_id[skill_id]
         return SkillSummary(
             id=skill_id,
             name=s.get("name", skill_id),
             rank=rank,
-            score=calibrated_score,
+            score=s.get("score", 0.0),
             confidence=s.get("confidence"),
             priority=s.get("priority"),
             learn_time=s.get("learn_time"),
@@ -58,8 +59,8 @@ def recommend(body: RecommendRequest) -> RecommendResponse:
             stability=s.get("stability"),
         )
 
-    required_skills = [_to_summary(skill_id, score, i + 1) for i, (skill_id, score) in enumerate(req_ranked)]
-    optional_skills = [_to_summary(skill_id, score, len(required_skills) + i + 1) for i, (skill_id, score) in enumerate(opt_ranked)]
+    required_skills = [_to_summary(skill_id, i + 1) for i, skill_id in enumerate(req_ids)]
+    optional_skills = [_to_summary(skill_id, len(required_skills) + i + 1) for i, skill_id in enumerate(opt_ids)]
 
     if body.time_budget_hours is not None:
         taxonomy_map = {s["id"]: s for s in result["taxonomy_skills"]}
