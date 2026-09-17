@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - 'data/SKILLS_GRAPH.json'
+      - 'mkdocs.yml'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
@@ -19,33 +20,55 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    name: Build MkDocs
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install MkDocs and plugins
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install mkdocs-material mkdocs-minify-plugin pymdown-extensions
+
+      - name: Build MkDocs
+        run: mkdocs build --strict
+
+      - name: Stage graph data
+        run: |
+          mkdir -p site/data
+          cp data/SKILLS_GRAPH.json site/data/SKILLS_GRAPH.json
+
+      - name: Verify Pages artifact
+        run: |
+          test -f site/index.html
+          test -f site/data/SKILLS_GRAPH.json
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+
   deploy:
-    name: Deploy static site
+    name: Deploy to GitHub Pages
+    needs: build
     runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-
-      # INITIATIVE-012B2: Stage docs/ + data/ together so that
-      # /skills-tree/data/SKILLS_GRAPH.json resolves on GitHub Pages.
-      - name: Stage artifact (docs + data)
-        run: |
-          mkdir -p _site
-          cp -r docs/. _site/
-          mkdir -p _site/data
-          cp data/SKILLS_GRAPH.json _site/data/SKILLS_GRAPH.json
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: _site
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
