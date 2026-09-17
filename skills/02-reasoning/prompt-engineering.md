@@ -7,6 +7,7 @@ description: "Design, structure, test, and refine prompts so language models rec
 added: "2025-03"
 version: v1
 tags: [reasoning, prompting, llm, instructions]
+related: [meta-prompting, step-back-prompting, goal-decomposition]
 updated: "2026-09"
 ---
 
