@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "meta" / "universal-registry.schema.json"
@@ -15,6 +17,7 @@ def load_schema() -> dict:
 def test_universal_registry_schema_is_valid_json_and_versioned() -> None:
     schema = load_schema()
 
+    Draft202012Validator.check_schema(schema)
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
     assert schema["properties"]["schema_version"]["const"] == "1.0"
     assert schema["type"] == "object"
