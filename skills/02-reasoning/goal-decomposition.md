@@ -97,7 +97,7 @@ if __name__ == "__main__":
 - [Planning Decomposition](planning-decomposition.md) — converts sub-goals into executable tasks
 - [Least-to-Most Prompting](least-to-most.md) — reasoning technique for decomposition
 - [Plan-and-Execute](../09-agentic-patterns/plan-and-execute.md) — executes the resulting plan
-- [Memory-Augmented Agent](../09-agentic-patterns/memory-augmented-agent.md) — tracks progress against goal tree
+- [Memory-Augmented Agent](../09-agentic-patterns/memory-augmented.md) — tracks progress against goal tree
 
 ## Changelog
 
