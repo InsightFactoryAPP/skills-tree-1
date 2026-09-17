@@ -38,7 +38,8 @@ Prompt Engineering is the disciplined design and refinement of model instruction
 
 ```python
 def build_prompt(task, context, constraints):
-    return f"Task: {task}\nContext: {context}\nConstraints: {'; '.join(constraints)}"
+    instructions = f"Task: {task}\nContext: {context}"
+    return f"{instructions}\nConstraints: {'; '.join(constraints)}"
 ```
 
 ## Core Practices
