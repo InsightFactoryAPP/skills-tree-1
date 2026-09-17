@@ -16,7 +16,7 @@ def test_universal_registry_schema_is_valid_json_and_versioned() -> None:
     schema = load_schema()
 
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-    assert schema["schema_version"] if "schema_version" in schema else True
+    assert schema["properties"]["schema_version"]["const"] == "1.0"
     assert schema["type"] == "object"
     assert schema["required"] == ["schema_version", "entity_types", "relationship_types"]
 
