@@ -28,10 +28,10 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
         "G02": [("web-search", "Critical", 4), ("web-scraping", "High", 4), ("reasoning-chains", "High", 6)],
         "G05": [("knowledge-graph-reading", "Critical", 5), ("context-management", "High", 4), ("rag-retrieval", "High", 5)],
         "G06": [("planning", "Critical", 5), ("tool-use", "Critical", 6), ("error-recovery", "High", 3)],
-        "G07": [("intent-classification", "Critical", 4), ("rag-retrieval", "High", 5), ("prompt-engineering", "High", 4)],
-        "G08": [("multi-agent-orchestration", "Critical", 8), ("planning", "Critical", 5), ("tool-use", "High", 6)],
-        "G09": [("audio-transcription", "Critical", 5), ("reasoning-chains", "High", 6), ("text-to-speech", "High", 5)],
-        "G10": [("data-analysis", "Critical", 6), ("structured-output", "High", 3), ("reasoning-chains", "High", 6)],
+        "G07": [("prompt-engineering", "Critical", 4), ("rag-retrieval", "High", 5), ("reasoning-chains", "High", 6)],
+        "G08": [("planning", "Critical", 5), ("tool-use", "Critical", 6), ("reasoning-chains", "High", 6)],
+        "G09": [("audio-transcription", "Critical", 5), ("reasoning-chains", "High", 6), ("prompt-engineering", "High", 4)],
+        "G10": [("structured-output", "Critical", 3), ("reasoning-chains", "High", 6), ("prompt-engineering", "High", 4)],
         "G11": [("code-analysis", "Critical", 8), ("structured-output", "High", 3), ("reasoning-chains", "High", 6)],
         "G12": [("prompt-engineering", "Critical", 4), ("summarization", "High", 4), ("markdown-generation", "High", 2)],
     }
@@ -61,13 +61,7 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
             goal_id = match.group(1)
             skills = []
             for skill_match in self._NUMBERED_SKILL_RE.finditer(match.group(2)):
-                skills.append(
-                    self._skill(
-                        skill_match.group(1).strip(),
-                        skill_match.group(2).strip(),
-                        int(skill_match.group(3)),
-                    )
-                )
+                skills.append(self._skill(skill_match.group(1).strip(), skill_match.group(2).strip(), int(skill_match.group(3))))
             if skills:
                 self._skill_maps[goal_id] = skills
 
@@ -97,13 +91,7 @@ def _parse_skill_mappings_with_level4(self: GoalTaxonomyParser) -> None:
         goal_id = match.group(1)
         skills = []
         for skill_match in RuntimeGoalTaxonomyParser._NUMBERED_SKILL_RE.finditer(match.group(2)):
-            skills.append(
-                RuntimeGoalTaxonomyParser._skill(
-                    skill_match.group(1).strip(),
-                    skill_match.group(2).strip(),
-                    int(skill_match.group(3)),
-                )
-            )
+            skills.append(RuntimeGoalTaxonomyParser._skill(skill_match.group(1).strip(), skill_match.group(2).strip(), int(skill_match.group(3))))
         if skills:
             self._skill_maps[goal_id] = skills
 
