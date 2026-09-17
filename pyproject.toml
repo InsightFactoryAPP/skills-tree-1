@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name            = "skills-tree"
 version         = "1.47.1"
-description     = "Architect — taxonomy-driven skill recommendation engine for AI agent builders"
+description     = "Universal, platform-agnostic skills and capability registry for AI agents"
 readme          = "README.md"
 license         = { file = "LICENSE" }
 requires-python = ">=3.11"
-keywords        = ["ai", "agents", "skills", "recommendation", "llm", "taxonomy"]
+keywords        = ["ai", "agents", "skills", "capabilities", "registry", "recommendation", "llm", "taxonomy", "mcp"]
 classifiers     = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
