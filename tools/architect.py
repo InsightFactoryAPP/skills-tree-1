@@ -14,7 +14,10 @@ _SOURCE = Path(__file__).with_name("architect_source.py")
 
 class _CompatibilityLoader(SourceFileLoader):
     def get_data(self, path):
-        text = super().get_data(path).decode("utf-8")
+        data = super().get_data(path)
+        if Path(path).resolve() != _SOURCE.resolve():
+            return data
+        text = data.decode("utf-8")
         replacements = {
             'print(f"\\n{\'\\u2500\'*70}\\nREQUIRED SKILLS (sorted by score \\u2193):")':
                 'separator = "─" * 70\n    print(f"\\n{separator}\\nREQUIRED SKILLS (sorted by score ↓):")',
