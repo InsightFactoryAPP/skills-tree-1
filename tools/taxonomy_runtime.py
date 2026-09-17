@@ -25,7 +25,8 @@ class RuntimeGoalTaxonomyParser(GoalTaxonomyParser):
         re.MULTILINE,
     )
     _GOAL_BASELINE_MAPPINGS = {
-        "G02": [("web-search", "Critical", 4), ("web-scraping", "High", 4), ("reasoning-chains", "High", 6)],
+        "G03": [("knowledge-graph-reading", "Critical", 5), ("context-management", "High", 4), ("rag-retrieval", "High", 5)],
+        "G04": [("web-search", "Critical", 4), ("web-scraping", "High", 4), ("reasoning-chains", "High", 6)],
         "G05": [("knowledge-graph-reading", "Critical", 5), ("context-management", "High", 4), ("rag-retrieval", "High", 5)],
         "G06": [("planning", "Critical", 5), ("tool-use", "Critical", 6), ("error-recovery", "High", 3)],
         "G07": [("prompt-engineering", "Critical", 4), ("rag-retrieval", "High", 5), ("reasoning-chains", "High", 6)],
@@ -109,6 +110,9 @@ def _skills_for_with_level4(self: GoalTaxonomyParser, goal_id: str) -> List[Dict
                     merged.setdefault(skill["id"], dict(skill))
         if merged:
             return list(merged.values())
+        baseline = RuntimeGoalTaxonomyParser._GOAL_BASELINE_MAPPINGS.get(goal_id)
+        if baseline:
+            return [RuntimeGoalTaxonomyParser._skill(*entry) for entry in baseline]
     return _ORIGINAL_SKILLS_FOR(self, goal_id)
 
 
@@ -116,7 +120,7 @@ GoalTaxonomyParser._parse_skill_mappings = _parse_skill_mappings_with_level4
 GoalTaxonomyParser.skills_for = _skills_for_with_level4
 
 _LEGACY_GOAL_ALIASES = {
-    "memory agent": "G05",
+    "memory agent": "G03",
     "workflow automation agent": "G06",
     "security audit agent": "G07",
     "analytics agent": "G10",
