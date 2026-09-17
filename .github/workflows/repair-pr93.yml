@@ -26,12 +26,10 @@ jobs:
           new = "    separator = '\\u2500' * 70\n    print(f\"\\n{separator}\\nREQUIRED SKILLS (sorted by score ↓):\")"
           assert old in s
           p.write_text(s.replace(old, new, 1), encoding='utf-8')
-
           p = Path('tests/test_cli.py')
           s = p.read_text(encoding='utf-8')
           assert 'runner = CliRunner(mix_stderr=False)' in s
           p.write_text(s.replace('runner = CliRunner(mix_stderr=False)', 'runner = CliRunner()', 1), encoding='utf-8')
-
           p = Path('skills/02-reasoning/prompt-engineering.md')
           s = p.read_text(encoding='utf-8')
           marker = '## Failure Modes\n'
