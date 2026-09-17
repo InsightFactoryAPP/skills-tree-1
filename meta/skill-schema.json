@@ -58,13 +58,33 @@
       "description": "Month of last update, format YYYY-MM",
       "pattern": "^[0-9]{4}-[0-9]{2}$"
     },
+    "updated": {
+      "type": "string",
+      "description": "Canonical month of last update used by current skill files, format YYYY-MM",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
     "description": {
       "type": "string",
       "description": "1-3 sentence description of what this skill enables an agent to do"
     },
+    "tags": {
+      "type": "array",
+      "description": "Short searchable tags associated with the skill",
+      "items": { "type": "string" }
+    },
+    "related": {
+      "type": "array",
+      "description": "Related skill identifiers or file slugs",
+      "items": { "type": "string" }
+    },
     "related_skills": {
       "type": "array",
       "description": "List of related skill file paths relative to the skills/ root",
+      "items": { "type": "string" }
+    },
+    "prerequisites": {
+      "type": "array",
+      "description": "Skill identifiers that should be learned first",
       "items": { "type": "string" }
     },
     "frameworks": {
@@ -78,7 +98,8 @@
           "url": { "type": "string", "format": "uri" },
           "implementation": { "type": "string" },
           "since": { "type": "string" }
-        }
+        },
+        "additionalProperties": false
       }
     }
   },
