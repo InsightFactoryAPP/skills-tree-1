@@ -1,5 +1,5 @@
-generated: '2026-08-17T05:09:52Z'
-count: 368
+generated: '2026-09-17T15:49:10Z'
+count: 369
 skills:
 - id: pipeline-test
   path: skills/00-sandbox/pipeline-test.md
@@ -1029,7 +1029,7 @@ skills:
   - Changelog
   related:
   - ../09-agentic-patterns/plan-and-execute.md
-  - ../09-agentic-patterns/memory-augmented-agent.md
+  - ../09-agentic-patterns/memory-augmented.md
   category_dir: 02-reasoning
 - id: goal-setting
   path: skills/02-reasoning/goal-setting.md
@@ -1156,8 +1156,8 @@ skills:
   - Related Skills
   - Changelog
   related:
-  - ../09-agentic-patterns/react-pattern.md
-  - ../09-agentic-patterns/reflection-pattern.md
+  - ../09-agentic-patterns/react.md
+  - ../09-agentic-patterns/reflection.md
   category_dir: 02-reasoning
 - id: multi-step-planning
   path: skills/02-reasoning/multi-step-planning.md
@@ -1218,7 +1218,7 @@ skills:
   - Changelog
   related:
   - ../09-agentic-patterns/plan-and-execute.md
-  - ../09-agentic-patterns/react-pattern.md
+  - ../09-agentic-patterns/react.md
   - ../09-agentic-patterns/subagent-delegation.md
   category_dir: 02-reasoning
 - id: planning
@@ -1296,6 +1296,28 @@ skills:
   - Changelog
   related: []
   category_dir: 02-reasoning
+- id: prompt-engineering
+  path: skills/02-reasoning/prompt-engineering.md
+  name: Prompt Engineering
+  description: Design, structure, test, and refine prompts so language models receive
+    clear objectives, constraints, context, output contracts, and evaluation criteria.
+  category: reasoning
+  level: intermediate
+  stability: stable
+  version: v1
+  added: 2025-03
+  last_updated: 2026-09
+  sections:
+  - Description
+  - When to Use
+  - Inputs / Outputs
+  - Core Practices
+  - Failure Modes
+  - Related Skills
+  - Changelog
+  related:
+  - ../09-agentic-patterns/react.md
+  category_dir: 02-reasoning
 - id: react
   path: skills/02-reasoning/react.md
   name: ReAct (Reason + Act)
@@ -1332,8 +1354,8 @@ skills:
   - Related Skills
   - Changelog
   related:
-  - ../09-agentic-patterns/reflection-pattern.md
-  - ../03-memory/rag-retrieval.md
+  - ../09-agentic-patterns/reflection.md
+  - ../03-memory/rag.md
   category_dir: 02-reasoning
 - id: risk-assessment
   path: skills/02-reasoning/risk-assessment.md
@@ -1508,7 +1530,7 @@ skills:
   - Changelog
   related:
   - ../09-agentic-patterns/cot.md
-  - ../09-agentic-patterns/rag-pattern.md
+  - ../09-agentic-patterns/rag.md
   category_dir: 02-reasoning
 - id: systems-thinking
   path: skills/02-reasoning/systems-thinking.md

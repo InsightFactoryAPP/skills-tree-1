@@ -52,7 +52,7 @@
     "url": "https://github.com/SamoTech"
   },
   "inLanguage": "en",
-  "dateModified": "2026-08-17T05:09:52Z",
+  "dateModified": "2026-09-17T15:49:10Z",
   "skillId": "code-explanation",
   "skillVersion": null,
   "skillLevel": "basic",
@@ -66,7 +66,7 @@
     "inDefinedTermSet": "https://schema.org/EducationalOccupationalCredential"
   },
   "datePublished": "2025-03-01",
-  "keywords": "LLM skill, skills tree, explanation, AI agent, code",
+  "keywords": "LLM skill, AI agent, skills tree, explanation, code",
   "about": {
     "@type": "Thing",
     "name": "Code Explanation",
