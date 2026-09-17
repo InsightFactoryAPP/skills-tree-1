@@ -97,12 +97,17 @@ def test_recommendation_contains_real_scoring_and_evidence(engine):
 
 def test_required_and_optional_sets_follow_taxonomy_priority(engine):
     result = engine.recommend("RAG Assistant")
+    taxonomy = {x["id"]: x for x in result["taxonomy_skills"]}
 
     assert result["required_skills"]
     assert result["optional_skills"]
     assert all(
-        s["id"] in {x["id"] for x in result["taxonomy_skills"]}
-        for s in result["required_skills"] + result["optional_skills"]
+        taxonomy[s["id"]]["priority"].lower() in {"critical", "high"}
+        for s in result["required_skills"]
+    )
+    assert all(
+        taxonomy[s["id"]]["priority"].lower() in {"medium", "low"}
+        for s in result["optional_skills"]
     )
 
 
@@ -121,7 +126,9 @@ def test_rank_order_is_deterministic_and_monotonic(engine):
     assert first_projection == second_projection
 
     ranks = [row[1] for row in first_projection]
+    scores = [row[2] for row in first_projection]
     assert ranks == list(range(1, len(ranks) + 1))
+    assert scores == sorted(scores, reverse=True)
 
 
 def test_unknown_goal_fails_cleanly(engine):
@@ -157,6 +164,10 @@ def test_real_api_recommendation_contract():
     assert data["goal_id"] == "G01"
     assert data["required_skills"]
     assert data["calibration_applied"] is True
+
+    scores = [s["score"] for s in data["required_skills"]]
+    assert scores == sorted(scores, reverse=True)
+    assert all(s["score"] is not None for s in data["required_skills"])
 
 
 def test_api_rejects_unknown_goal():
