@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SamoTech/skills-tree/blob/main/meta/adapter-contract.schema.json",
+  "title": "Skills Tree Universal Adapter Contract",
+  "description": "Machine-readable contract for adapters that expose an implementation through an explicit target ecosystem boundary.",
+  "type": "object",
+  "required": ["contract_version", "adapter"],
+  "properties": {
+    "contract_version": { "type": "string", "const": "1.0" },
+    "adapter": { "$ref": "#/$defs/adapter" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/-]*$",
+      "minLength": 2
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "target": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["platform", "framework", "protocol", "runtime"]
+        },
+        "id": { "$ref": "#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "required": ["source", "target"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "transform": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source_type"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["repository", "official_documentation", "implementation", "benchmark", "production", "community", "experimental"]
+        },
+        "source": { "type": "string", "minLength": 1 },
+        "verified_at": { "type": "string", "format": "date-time" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "methodology": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "object",
+      "required": [
+        "id", "version", "name", "implementation", "targets",
+        "input_mapping", "output_mapping", "auth_requirements",
+        "runtime_requirements", "constraints", "limitations",
+        "provenance", "evidence", "status"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/version" },
+        "name": { "type": "string", "minLength": 1 },
+        "implementation": { "$ref": "#/$defs/id" },
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/target" }
+        },
+        "input_mapping": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/mapping" }
+        },
+        "output_mapping": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/mapping" }
+        },
+        "auth_requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "runtime_requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "constraints": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["candidate", "verified", "deprecated", "experimental"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
