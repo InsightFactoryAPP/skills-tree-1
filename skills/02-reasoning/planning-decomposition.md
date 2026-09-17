@@ -7,6 +7,7 @@ description: "Break a complex agent goal into an ordered sequence of actionable 
 added: "2025-06"
 version: v3
 tags: [reasoning, planning, decomposition, agent-design]
+related: [goal-decomposition, ../09-agentic-patterns/plan-and-execute, ../09-agentic-patterns/react]
 updated: "2026-06"
 prerequisites:
   - 02-reasoning/goal-decomposition
