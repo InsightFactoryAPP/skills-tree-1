@@ -31,25 +31,35 @@ def recommend(body: RecommendRequest) -> RecommendResponse:
     goal_name = result["goal_name"]
     goal_id = result["goal_id"]
 
-    req_ids = calibrator.calibrate_ids(
-        [s["id"] for s in result["required_skills"]],
-        goal_id=goal_id,
-        goal_text=goal_name,
-    )
-    opt_ids = calibrator.calibrate_ids(
-        [s["id"] for s in result["optional_skills"]],
-        goal_id=goal_id,
-        goal_text=goal_name,
-    )
+    def _calibrate_ids(skills):
+        ids = [s["id"] for s in skills]
+        return calibrator.calibrate_ids(ids, goal_id=goal_id, goal_text=goal_name)
+
+    req_ids = _calibrate_ids(result["required_skills"])
+    opt_ids = _calibrate_ids(result["optional_skills"])
     by_id = {s["id"]: s for s in result["required_skills"] + result["optional_skills"]}
 
-    def _to_summary(skill_id: str, rank: int) -> SkillSummary:
+    # Use a neutral base score so the exposed scores represent only the
+    # calibration layer and remain monotonic with the calibrated ordering.
+    def _calibrated_scores(ids):
+        return dict(
+            calibrator.calibrate(
+                [(skill_id, 0.0) for skill_id in ids],
+                goal_id=goal_id,
+                goal_text=goal_name,
+            )
+        )
+
+    req_scores = _calibrated_scores(req_ids)
+    opt_scores = _calibrated_scores(opt_ids)
+
+    def _to_summary(skill_id: str, rank: int, score: float) -> SkillSummary:
         s = by_id[skill_id]
         return SkillSummary(
             id=skill_id,
             name=s.get("name", skill_id),
             rank=rank,
-            score=s.get("score", 0.0),
+            score=score,
             confidence=s.get("confidence"),
             priority=s.get("priority"),
             learn_time=s.get("learn_time"),
@@ -59,8 +69,8 @@ def recommend(body: RecommendRequest) -> RecommendResponse:
             stability=s.get("stability"),
         )
 
-    required_skills = [_to_summary(skill_id, i + 1) for i, skill_id in enumerate(req_ids)]
-    optional_skills = [_to_summary(skill_id, len(required_skills) + i + 1) for i, skill_id in enumerate(opt_ids)]
+    required_skills = [_to_summary(skill_id, i + 1, req_scores[skill_id]) for i, skill_id in enumerate(req_ids)]
+    optional_skills = [_to_summary(skill_id, len(required_skills) + i + 1, opt_scores[skill_id]) for i, skill_id in enumerate(opt_ids)]
 
     if body.time_budget_hours is not None:
         taxonomy_map = {s["id"]: s for s in result["taxonomy_skills"]}
