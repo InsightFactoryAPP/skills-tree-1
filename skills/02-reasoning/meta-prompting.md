@@ -102,9 +102,9 @@ if __name__ == "__main__":
 ## Related Skills
 
 - [Prompt Engineering](prompt-engineering.md) — prerequisite; meta-prompting automates this skill
-- [ReAct Pattern](../09-agentic-patterns/react-pattern.md) — meta-prompting can generate ReAct system prompts
+- [ReAct Pattern](../09-agentic-patterns/react.md) — meta-prompting can generate ReAct system prompts
 - [Planning Decomposition](planning-decomposition.md) — meta-prompting supports plan generation
-- [Reflection](../09-agentic-patterns/reflection-pattern.md) — meta-prompting + reflection creates self-improving prompt loops
+- [Reflection](../09-agentic-patterns/reflection.md) — meta-prompting + reflection creates self-improving prompt loops
 
 ## Changelog
 
