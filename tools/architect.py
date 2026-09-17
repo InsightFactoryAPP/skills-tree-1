@@ -37,47 +37,41 @@ _loader.exec_module(_module)
 globals().update(_module.__dict__)
 
 
-# Calibration is part of the recommendation contract, not an API-only
-# presentation step. Keeping it here makes Engine/API/MCP ordering identical.
-_RecommendationEngine = RecommendationEngine
-_original_recommend = _RecommendationEngine.recommend
+_OriginalRecommendationEngine = RecommendationEngine
 
 
-def _calibrated_recommend(self, goal_query):
-    result = _original_recommend(self, goal_query)
-    if "error" in result:
-        return result
+class RecommendationEngine(_OriginalRecommendationEngine):
+    """Legacy engine with the shared deterministic calibration contract."""
 
-    from tools.ranking_calibrator import RankingCalibrator
+    def recommend(self, goal_query):
+        result = super().recommend(goal_query)
+        if "error" in result:
+            return result
 
-    calibrator = RankingCalibrator()
-    goal_id = result["goal_id"]
-    goal_name = result["goal_name"]
+        from tools.ranking_calibrator import RankingCalibrator
 
-    def apply(skills):
-        ranked = calibrator.calibrate(
-            [(skill["id"], skill["score"]) for skill in skills],
-            goal_id=goal_id,
-            goal_text=goal_name,
-        )
-        by_id = {skill["id"]: skill for skill in skills}
-        ordered = []
-        for rank, (skill_id, score) in enumerate(ranked, start=1):
-            skill = dict(by_id[skill_id])
-            skill["score"] = score
+        calibrator = RankingCalibrator()
+        goal_id = result["goal_id"]
+        goal_name = result["goal_name"]
+
+        def apply(skills):
+            ranked = calibrator.calibrate(
+                [(skill["id"], skill["score"]) for skill in skills],
+                goal_id=goal_id,
+                goal_text=goal_name,
+            )
+            by_id = {skill["id"]: skill for skill in skills}
+            ordered = []
+            for rank, (skill_id, score) in enumerate(ranked, start=1):
+                skill = dict(by_id[skill_id])
+                skill["score"] = score
+                skill["rank"] = rank
+                ordered.append(skill)
+            return ordered
+
+        result["required_skills"] = apply(result["required_skills"])
+        result["optional_skills"] = apply(result["optional_skills"])
+        for rank, skill in enumerate(result["required_skills"] + result["optional_skills"], start=1):
             skill["rank"] = rank
-            ordered.append(skill)
-        return ordered
-
-    required = apply(result["required_skills"])
-    optional = apply(result["optional_skills"])
-    for rank, skill in enumerate(required + optional, start=1):
-        skill["rank"] = rank
-    result["required_skills"] = required
-    result["optional_skills"] = optional
-    result["calibration_applied"] = True
-    return result
-
-
-_RecommendationEngine.recommend = _calibrated_recommend
-RecommendationEngine = _RecommendationEngine
+        result["calibration_applied"] = True
+        return result
