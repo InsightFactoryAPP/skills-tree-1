@@ -27,17 +27,14 @@ jobs:
           p = Path('tools/architect.py')
           lines = p.read_text(encoding='utf-8').splitlines()
           out = []
-          i = 0
           changed = False
-          while i < len(lines):
-              line = lines[i]
-              if 'REQUIRED SKILLS (sorted by score' in line and i > 0 and "print(f" in lines[i]:
+          for line in lines:
+              if 'REQUIRED SKILLS (sorted by score' in line and "print(f" in line and out:
                   out[-1] = '    separator = "─" * 70'
                   out.append('    print(f"\\n{separator}\\nREQUIRED SKILLS (sorted by score ↓):")')
                   changed = True
               else:
                   out.append(line)
-              i += 1
           p.write_text('\n'.join(out) + '\n', encoding='utf-8')
           assert changed, 'architect.py blocker was not found'
 
