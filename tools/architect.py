@@ -37,7 +37,7 @@ _loader.exec_module(_module)
 globals().update(_module.__dict__)
 
 
-_OriginalRecommendationEngine = RecommendationEngine
+_OriginalRecommendationEngine = _module.RecommendationEngine
 
 
 class RecommendationEngine(_OriginalRecommendationEngine):
@@ -75,3 +75,9 @@ class RecommendationEngine(_OriginalRecommendationEngine):
             skill["rank"] = rank
         result["calibration_applied"] = True
         return result
+
+
+# SourceFileLoader owns the actual module object exposed through sys.modules.
+# Register the patched class there, not only in the bootstrap module globals.
+_module.RecommendationEngine = RecommendationEngine
+globals().update({"RecommendationEngine": RecommendationEngine})
