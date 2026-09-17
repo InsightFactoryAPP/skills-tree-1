@@ -4,8 +4,8 @@
 
 ## Summary
 
-- **Total skill files:** 368
-- 🟢 **Battle-tested** (rich content + tables + >=60 lines): 59
+- **Total skill files:** 369
+- 🟢 **Battle-tested** (rich content + tables + >=60 lines): 60
 - 🟡 **Enriched** (real description + runnable code): 3
 - ⚪ **Stub** (placeholder description or no runnable code): 303
 - ❌ **Invalid** (frontmatter problems): 3
@@ -16,7 +16,7 @@
 |---|---|---|---|---|---|
 | `00-sandbox` | 1 | 0 | 0 | 1 | 0 |
 | `01-perception` | 36 | 8 | 2 | 26 | 0 |
-| `02-reasoning` | 45 | 8 | 0 | 36 | 1 |
+| `02-reasoning` | 46 | 9 | 0 | 36 | 1 |
 | `03-memory` | 19 | 6 | 0 | 13 | 0 |
 | `04-action-execution` | 21 | 2 | 0 | 19 | 0 |
 | `05-code` | 28 | 5 | 0 | 23 | 0 |
@@ -48,6 +48,7 @@
 - [`skills/02-reasoning/meta-prompting.md`](skills/02-reasoning/meta-prompting.md) — Meta-Prompting
 - [`skills/02-reasoning/planning-decomposition.md`](skills/02-reasoning/planning-decomposition.md) — Planning Decomposition
 - [`skills/02-reasoning/planning.md`](skills/02-reasoning/planning.md) — Planning
+- [`skills/02-reasoning/prompt-engineering.md`](skills/02-reasoning/prompt-engineering.md) — Prompt Engineering
 - [`skills/02-reasoning/self-consistency.md`](skills/02-reasoning/self-consistency.md) — Self-Consistency
 - [`skills/02-reasoning/step-back-prompting.md`](skills/02-reasoning/step-back-prompting.md) — Step-Back Prompting
 - [`skills/02-reasoning/task-decomposition.md`](skills/02-reasoning/task-decomposition.md) — Task Decomposition
