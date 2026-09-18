@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 from pathlib import Path
 from typing import Any, TypedDict
@@ -39,13 +40,13 @@ class UniversalRegistry:
 
     @property
     def data(self) -> dict[str, Any]:
-        return self._data
+        return deepcopy(self._data)
 
     def resolve_goal(self, goal_id: str) -> dict[str, Any]:
         matches = [g for g in self._data["entities"]["goals"] if g["id"] == goal_id]
         if not matches:
             raise KeyError(f"Unknown goal: {goal_id}")
-        return matches[0]
+        return deepcopy(matches[0])
 
     def skills_for_goal(self, goal_id: str) -> list[dict[str, Any]]:
         goal = self.resolve_goal(goal_id)
@@ -56,23 +57,23 @@ class UniversalRegistry:
             capability = capabilities[capability_id]
             for skill_id in capability["skills"]:
                 result[skill_id] = skills[skill_id]
-        return [result[key] for key in sorted(result)]
+        return deepcopy([result[key] for key in sorted(result)])
 
     def resolve_implementation(self, implementation_id: str) -> ImplementationRecord:
         """Return one validated Implementation by canonical ID."""
         matches = [item for item in self._data["entities"]["implementations"] if item["id"] == implementation_id]
         if not matches:
             raise KeyError(f"Unknown implementation: {implementation_id}")
-        return matches[0]
+        return deepcopy(matches[0])
 
     def implementations_for_skill(self, skill_id: str) -> list[ImplementationRecord]:
         """Return validated implementations for a canonical Skill in deterministic order."""
         if not any(item["id"] == skill_id for item in self._data["entities"]["skills"]):
             raise KeyError(f"Unknown skill: {skill_id}")
-        return sorted(
+        return deepcopy(sorted(
             [item for item in self._data["entities"]["implementations"] if item["skill"] == skill_id],
             key=lambda item: item["id"],
-        )
+        ))
 
     def compatibility_for(self, subject_id: str, target_type: str | None = None, target_id: str | None = None) -> list[dict[str, Any]]:
         """Return deterministic compatibility facts for an entity."""
@@ -81,7 +82,7 @@ class UniversalRegistry:
             records = [x for x in records if x["target"]["type"] == target_type]
         if target_id is not None:
             records = [x for x in records if x["target"]["id"] == target_id]
-        return sorted(records, key=lambda x: x["id"])
+        return deepcopy(sorted(records, key=lambda x: x["id"]))
 
     def graph_edges(self) -> list[dict[str, Any]]:
         """Return validated typed universal-graph edges in deterministic order."""
@@ -118,7 +119,7 @@ class UniversalRegistry:
                 raise ValueError(f"Invalid typed graph endpoint: {edge['source']} -> {edge['target']}")
             if edge["source"] == edge["target"]:
                 raise ValueError(f"Graph self-loop: {edge['source']}")
-        return sorted(edges, key=lambda x: (x["source"], x["relationship_type"], x["target"]))
+        return deepcopy(sorted(edges, key=lambda x: (x["source"], x["relationship_type"], x["target"])))
 
     def _validate_implementation_contracts(self) -> None:
         """Validate every registered Implementation against the normative contract."""

@@ -11,12 +11,12 @@
 
 | Key | Value |
 |---|---|
-| Main HEAD at task baseline | `a5ee8ebc75ecb2059079aeeef783ed5c81145dde` |
+| Main HEAD at task baseline | `53f25e1ca33dabb455d4eeea2da01a4be71bee31` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
 | Highest verified roadmap item | P2.2 — Typed runtime access and validation |
-| Current audit-derived slice | Implementation ↔ Skill referential symmetry |
-| Active branch | `phase2/implementation-skill-linkage-20260919` |
+| Current audit-derived slice | Read-only registry facade integrity |
+| Active branch | `phase2/registry-readonly-boundary-20260919` |
 | Active governance blocker | None at task baseline |
 | Current implementation registry | `implementation/code-reviewer-system` |
 | MCP classification | Protocol; not an Implementation |
@@ -34,13 +34,13 @@ The older June 2026 launch/content roadmap documents remain historical records. 
 
 `P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6 → P1.7 → P1.8 → P1.9 → P1.10 → P1.11 → P2.1 → P2.2`
 
-Phase 1 and P2.1/P2.2 remain the highest numbered verified roadmap items. The lifecycle verification gate is merged on `main`; this task addresses the next audit-derived referential integrity gap without inventing a numbered P2.3.
+Phase 1 and P2.1/P2.2 remain the highest numbered verified roadmap items. The lifecycle verification gate and Skill↔Implementation symmetry are merged on `main`; this task addresses the next audit-derived runtime integrity gap without inventing a numbered P2.3.
 
 ---
 
 ## Current Audit-Driven Slice
 
-Every Implementation must point to an existing canonical Skill, and that Skill must list the Implementation in its `implementations` collection. The runtime now enforces this symmetry so duplicated relationship representations cannot silently diverge.
+The runtime is documented as a read-only deterministic facade. Public accessors now return independent snapshots so callers cannot mutate validated internal registry state after initialization.
 
 ## Next Action
 

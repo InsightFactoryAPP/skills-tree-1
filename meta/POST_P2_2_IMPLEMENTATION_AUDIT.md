@@ -1,34 +1,28 @@
 # Post-P2.2 Implementation Ontology Architecture Audit
 
 **Date:** 2026-09-19
-**Baseline:** `main` at `a5ee8ebc75ecb2059079aeeef783ed5c81145dde`
-**Scope:** Implementation Ontology after lifecycle verification gate
+**Baseline:** `main` at `53f25e1ca33dabb455d4eeea2da01a4be71bee31`
+**Scope:** Implementation Ontology after Skill↔Implementation referential symmetry
 
 ## Audit conclusion
 
-The lifecycle verification gap identified after P2.2 is now merged. The next highest-value remaining correctness gap is referential symmetry between a canonical Skill and its registered Implementations.
+The lifecycle verification gap and duplicated Skill↔Implementation relationship gap are now merged. The next correctness gap is the read-only runtime boundary: `UniversalRegistry` is documented and implemented as a read-only facade, but its public accessors previously returned references to mutable internal registry structures.
 
-The registry currently carries the same relationship in two places:
-
-- `Implementation.skill` identifies the canonical Skill implemented by the record.
-- `Skill.implementations` lists the Implementations attached to that Skill.
-
-The current runtime validates that both sides reference existing IDs, but before this slice it did not require the relationship to be symmetric. That permits a registry state in which an Implementation claims Skill `S`, while `S.implementations` omits the Implementation. This is dangerous because different runtime paths can use different sides of the duplicated relationship.
+A caller could mutate `registry.data`, an Implementation returned by `resolve_implementation()`, a Skill returned by `skills_for_goal()`, compatibility records, or graph edges and thereby mutate the registry's in-memory state after initialization without re-running validation. That violates the runtime's read-only contract and can make subsequent resolution observe state that was never schema- or integrity-validated.
 
 ## Evidence reviewed
 
-- `meta/IMPLEMENTATION_CONTRACT.md` requires explicit canonical Skill linkage.
-- `registry/runtime.py` resolves Implementations by their explicit `skill` field while recommendation/eligibility paths consume Skill-side implementation membership.
-- `registry/universal_registry.json` currently contains one real Implementation and its Skill-side linkage is symmetric.
-- Existing runtime tests covered dangling references and deterministic lookup, but not bidirectional consistency.
-- The previous audit explicitly rejected this as lower priority than the lifecycle trust boundary; that boundary is now merged, making symmetry the next correctness priority.
+- `registry/runtime.py` documents `UniversalRegistry` as a read-only registry facade.
+- `docs/architecture/CURRENT_ARCHITECTURE.md` describes the runtime as a read-only deterministic facade.
+- P2.2 and subsequent slices require registry validation at initialization, making post-initialization mutation an integrity boundary.
+- Public runtime accessors previously returned nested objects directly from `_data` or derived lists containing references to `_data` records.
 
 ## Selected vertical slice
 
-Implement only the duplicated-reference invariant:
+Implement only the read-only boundary invariant:
 
-1. Runtime: every Implementation's `skill` must exist and its ID must be present in that Skill's `implementations` list.
-2. Behavioral regression tests: reject an asymmetric fixture and accept the existing symmetric registry.
+1. Runtime: public accessors return independent deep-copy snapshots rather than internal mutable structures.
+2. Behavioral regression test: mutate snapshots from representative public accessors and verify later reads remain unchanged.
 3. Documentation: record this audit-derived slice without assigning an invented roadmap number.
 4. State: update `MEMORY_STATE.md` in the same task commit.
 
