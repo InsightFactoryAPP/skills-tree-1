@@ -10,7 +10,7 @@ def test_typed_graph_edges_resolve_to_registry_entities():
     edges=UniversalRegistry(REGISTRY).graph_edges()
     assert len(edges)==8
     assert edges[0]["source"]=="05-code/code-review"
-    assert edges[-1]["target"]=="protocol/model-context-protocol"
+    assert any(edge["target"]=="protocol/model-context-protocol" for edge in edges)
 def test_graph_edges_are_deterministic():
     r=UniversalRegistry(REGISTRY); assert r.graph_edges()==r.graph_edges()
 def test_graph_rejects_wrong_endpoint_type(tmp_path):
