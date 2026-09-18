@@ -36,6 +36,15 @@ class UniversalRegistry:
                 result[skill_id] = skills[skill_id]
         return [result[key] for key in sorted(result)]
 
+    def compatibility_for(self, subject_id: str, target_type: str | None = None, target_id: str | None = None) -> list[dict[str, Any]]:
+        """Return deterministic compatibility facts for an entity."""
+        records = [x for x in self._data["entities"].get("compatibilities", []) if x["subject"] == subject_id]
+        if target_type is not None:
+            records = [x for x in records if x["target"]["type"] == target_type]
+        if target_id is not None:
+            records = [x for x in records if x["target"]["id"] == target_id]
+        return sorted(records, key=lambda x: x["id"])
+
     def _validate_integrity(self) -> None:
         entities = self._data.get("entities")
         if not isinstance(entities, dict):
@@ -67,6 +76,7 @@ class UniversalRegistry:
         implementations = {x["id"]: x for x in entities["implementations"]}
         evidence = {x["id"]: x for x in entities["evidence"]}
         adapters = {x["id"]: x for x in entities["adapters"]}
+        compatibilities = {x["id"]: x for x in entities.get("compatibilities", [])}
 
         for skill in skills.values():
             if skill.get("canonical") is not True:
@@ -94,6 +104,34 @@ class UniversalRegistry:
                 if evidence_id not in evidence:
                     raise ValueError(f"Dangling implementation evidence reference: {evidence_id}")
 
+        valid_compatibility_subject_types = {"skills", "implementations", "adapters"}
+        valid_compatibility_target_types = {"platform", "framework", "model", "protocol", "runtime"}
+        compatibility_target_collections = {
+            "platform": "platforms",
+            "framework": "frameworks",
+            "model": "models",
+            "protocol": "protocols",
+            "runtime": "runtimes",
+        }
+        for compatibility in compatibilities.values():
+            subject_id = compatibility.get("subject")
+            if subject_id not in ids:
+                raise ValueError(f"Dangling compatibility subject reference: {subject_id}")
+            subject_type = next((kind for kind, records in entities.items() if any(x["id"] == subject_id for x in records)), None)
+            if subject_type not in valid_compatibility_subject_types:
+                raise ValueError(f"Invalid compatibility subject type: {subject_type}")
+            target = compatibility.get("target", {})
+            target_type = target.get("type")
+            target_id = target.get("id")
+            if target_type not in valid_compatibility_target_types:
+                raise ValueError(f"Invalid compatibility target type: {target_type}")
+            if target_id not in {x["id"] for x in entities.get(compatibility_target_collections[target_type], [])}:
+                raise ValueError(f"Dangling compatibility target reference: {target_type}/{target_id}")
+            if compatibility.get("status") not in {"compatible", "conditional", "incompatible", "unknown", "deprecated"}:
+                raise ValueError(f"Invalid compatibility status: {compatibility.get('status')}")
+            for evidence_id in compatibility.get("evidence", []):
+                if evidence_id not in evidence:
+                    raise ValueError(f"Dangling compatibility evidence reference: {evidence_id}")
         for evidence_item in evidence.values():
             for supported_id in evidence_item.get("supports", []):
                 if supported_id not in ids:

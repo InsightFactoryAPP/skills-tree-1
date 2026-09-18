@@ -145,3 +145,27 @@ def test_first_real_mcp_adapter_links_implementation_protocol_and_evidence() -> 
     assert adapter["targets"] == [{"type": "protocol", "id": "protocol/model-context-protocol"}]
     assert adapter["evidence"] == ["evidence/code-reviewer-runtime", "evidence/code-reviewer-mcp-boundary"]
     assert adapter["status"] == "candidate"
+
+
+def test_first_compatibility_fact_is_conditional_and_evidence_backed() -> None:
+    registry = UniversalRegistry(REGISTRY)
+
+    facts = registry.compatibility_for(
+        "adapter/code-reviewer-mcp",
+        target_type="protocol",
+        target_id="protocol/model-context-protocol",
+    )
+
+    assert [fact["id"] for fact in facts] == ["compatibility/code-reviewer-mcp-model-context-protocol"]
+    assert facts[0]["status"] == "conditional"
+    assert facts[0]["evidence"] == ["evidence/code-reviewer-mcp-boundary"]
+
+
+def test_registry_rejects_dangling_compatibility_target(tmp_path: Path) -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    data["entities"]["compatibilities"][0]["target"]["id"] = "protocol/missing"
+    broken = tmp_path / "broken-compatibility.json"
+    broken.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Dangling compatibility target reference"):
+        UniversalRegistry(broken)

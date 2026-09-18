@@ -30,7 +30,8 @@
         "adapter",
         "evidence",
         "benchmark",
-        "architecture"
+        "architecture",
+        "compatibility"
       ],
       "additionalProperties": false,
       "properties": {
@@ -70,6 +71,9 @@
         "architecture": {
           "$ref": "#/$defs/entityDefinition"
         },
+        "compatibility": {
+          "$ref": "#/$defs/compatibilityDefinition"
+        },
         "protocol": {
           "$ref": "#/$defs/entityDefinition"
         },
@@ -107,23 +111,43 @@
   "$defs": {
     "entityDefinition": {
       "type": "object",
-      "required": [
-        "id",
-        "version",
-        "provenance"
-      ],
+      "required": ["id", "version", "provenance"],
       "properties": {
-        "id": {
-          "$ref": "#/$defs/id"
-        },
-        "version": {
-          "$ref": "#/$defs/version"
-        },
-        "provenance": {
-          "$ref": "#/$defs/provenance"
-        }
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/version" },
+        "provenance": { "$ref": "#/$defs/provenance" }
       },
       "additionalProperties": true
+    },
+    "compatibilityDefinition": {
+      "allOf": [
+        { "$ref": "#/$defs/entityDefinition" },
+        {
+          "type": "object",
+          "required": ["id", "version", "name", "provenance", "subject", "target", "status", "evidence"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "version": { "$ref": "#/$defs/version" },
+            "name": { "type": "string", "minLength": 1 },
+            "provenance": { "$ref": "#/$defs/provenance" },
+            "subject": { "$ref": "#/$defs/id" },
+            "target": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": { "type": "string", "enum": ["platform", "framework", "model", "protocol", "runtime"] },
+                "id": { "$ref": "#/$defs/id" }
+              },
+              "additionalProperties": false
+            },
+            "status": { "type": "string", "enum": ["compatible", "conditional", "incompatible", "unknown", "deprecated"] },
+            "evidence": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+            "constraints": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+            "limitations": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "skillDefinition": {
       "allOf": [
