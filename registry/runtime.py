@@ -28,7 +28,6 @@ class ImplementationRecord(TypedDict):
     status: str
 
 
-
 class UniversalRegistry:
     """Read-only registry facade for Goal -> Capability -> Skill resolution."""
 
@@ -126,8 +125,25 @@ class UniversalRegistry:
         schema_path = self.path.parent.parent / "meta" / "implementation-contract.schema.json"
         contract = json.loads(schema_path.read_text(encoding="utf-8"))
         validator = Draft202012Validator(contract)
+        evidence = {item["id"]: item for item in self._data["entities"]["evidence"]}
         for implementation in self._data["entities"]["implementations"]:
             validator.validate({"contract_version": "1.0", "implementation": implementation})
+            if implementation["status"] != "verified":
+                continue
+            if not implementation["evidence"]:
+                raise ValueError(f"Verified implementation requires evidence: {implementation['id']}")
+            if not implementation["provenance"].get("source"):
+                raise ValueError(f"Verified implementation requires traceable provenance source: {implementation['id']}")
+            unsupported = [
+                evidence_id
+                for evidence_id in implementation["evidence"]
+                if implementation["id"] not in evidence[evidence_id].get("supports", [])
+            ]
+            if unsupported:
+                raise ValueError(
+                    f"Verified implementation evidence does not support implementation {implementation['id']}: "
+                    + ", ".join(sorted(unsupported))
+                )
 
     def _validate_integrity(self) -> None:
         entities = self._data.get("entities")

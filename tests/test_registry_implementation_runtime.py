@@ -47,3 +47,50 @@ def test_registry_initialization_validates_implementation_contract(tmp_path: Pat
     contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(Exception):
         UniversalRegistry(registry_path)
+
+
+def test_verified_implementation_requires_evidence_and_traceable_provenance(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    implementation = registry["entities"]["implementations"][0]
+    implementation["status"] = "verified"
+    implementation["evidence"] = []
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    contract = ROOT / "meta" / "implementation-contract.schema.json"
+    contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
+    contract_target.parent.mkdir()
+    contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    with pytest.raises(Exception, match="evidence"):
+        UniversalRegistry(registry_path)
+
+
+def test_verified_implementation_evidence_must_support_record(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    implementation = registry["entities"]["implementations"][0]
+    implementation["status"] = "verified"
+    evidence = registry["entities"]["evidence"][0]
+    evidence["supports"] = []
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    contract = ROOT / "meta" / "implementation-contract.schema.json"
+    contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
+    contract_target.parent.mkdir()
+    contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    with pytest.raises(ValueError, match="does not support implementation"):
+        UniversalRegistry(registry_path)
+
+
+def test_verified_implementation_with_supporting_evidence_passes(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    implementation = registry["entities"]["implementations"][0]
+    implementation["status"] = "verified"
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    contract = ROOT / "meta" / "implementation-contract.schema.json"
+    contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
+    contract_target.parent.mkdir()
+    contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    UniversalRegistry(registry_path)
