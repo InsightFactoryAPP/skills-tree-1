@@ -15,6 +15,8 @@ The target system allows an agent to start with a goal and deterministically dis
 
 and then reason over prerequisites, dependencies, evidence, benchmarks, constraints, failure modes, composition, architecture, and execution paths.
 
+P1.8 compatibility is now a merged registry capability: compatibility facts are typed, evidence-backed, and consumed as applicability data rather than ranking scores. P1.9 eligibility is implemented as a standalone pre-ranking filter and must remain separate from ranking and calibration.
+
 The repository is not intended to become a prompt library, a framework-specific skill collection, or a static Markdown directory. Markdown remains valuable as human-readable source material, while machine-readable contracts, provenance, graph integrity, and deterministic runtime behavior become first-class.
 
 ## 2. Canonical Ontology
@@ -287,3 +289,8 @@ Historical documents remain useful context but must not silently override the cu
 ## 12. Change Control
 
 When a roadmap task is completed, update this document only with verifiable evidence: commit/PR, tests, CI, and resulting behavior. Never mark a phase complete because code was drafted or because a specification exists.
+
+
+## Current roadmap state
+
+P1.1 through P1.8 are verified on `main`. P1.9 introduces the deterministic eligibility boundary in `registry/eligibility.py` with `meta/eligibility-contract.schema.json` and behavioral tests. The first slice uses registered candidates and optional typed targets; compatibility is evaluated before ranking. No authoritative prerequisite registry exists yet, so prerequisite evaluation is not fabricated.
