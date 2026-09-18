@@ -63,9 +63,13 @@ def test_target_incompatible_registered_candidate_is_filtered_before_final_resul
             "status": "ineligible",
             "reasons": [
                 {
+                    "code": "no_implementation",
+                    "message": "Skill has no registered implementation: 11-web/web-search",
+                },
+                {
                     "code": "compatibility_missing",
                     "message": "No evidence-backed compatibility fact for 11-web/web-search and protocol/model-context-protocol",
-                }
+                },
             ],
         }
     ]
