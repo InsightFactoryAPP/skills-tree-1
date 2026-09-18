@@ -1,6 +1,6 @@
 # MEMORY STATE
 
-**Last reconciled:** 2026-09-18
+**Last reconciled:** 2026-09-19
 **Current execution source of truth:** `meta/DEVELOPMENT_KNOWLEDGE.md`
 **Governance authority:** `meta/PROJECT_CONSTITUTION.md`
 **Execution model:** `meta/AGENT_OPERATING_MODEL.md`
@@ -11,13 +11,13 @@
 
 | Key | Value |
 |---|---|
-| Mission | Universal Agent Knowledge Layer |
-| Main HEAD at reconciliation | `31cabe75eae7f26d73a7504ad3b83043d6fe79af` |
+| Main HEAD at task baseline | `a5ee8ebc75ecb2059079aeeef783ed5c81145dde` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
-| Highest verified item | P2.2 — Typed runtime access and validation |
-| Next item | Unnumbered post-P2.2 lifecycle verification gate derived by architecture audit |
-| Active governance blocker | None at audit baseline |
+| Highest verified roadmap item | P2.2 — Typed runtime access and validation |
+| Current audit-derived slice | Implementation ↔ Skill referential symmetry |
+| Active branch | `phase2/implementation-skill-linkage-20260919` |
+| Active governance blocker | None at task baseline |
 | Current implementation registry | `implementation/code-reviewer-system` |
 | MCP classification | Protocol; not an Implementation |
 | New claims policy | No provider/platform/framework/model/adapter/compatibility claims without authoritative provenance |
@@ -26,16 +26,7 @@
 
 ## State Reconciliation
 
-The former June 2026 launch state and the older content/community roadmap remain historical records. They are not the current execution state.
-
-Current execution must follow:
-
-`meta/PROJECT_CONSTITUTION.md`
-→ `meta/AGENT_OPERATING_MODEL.md`
-→ `meta/DEVELOPMENT_KNOWLEDGE.md`
-→ verified commits/tests/CI
-
-The older `AGENT_SKILLS_MASTER_PLAN.md`, `AGENT_SKILLS_BACKLOG.md`, `ROADMAP.md`, and `ROADMAP_V2.md` are retained for historical traceability and must not override the current Universal Agent Knowledge Layer roadmap.
+The older June 2026 launch/content roadmap documents remain historical records. Current execution follows the Constitution, Operating Model, Development Knowledge, verified commits/tests/CI, and audit-derived Phase 2 slices.
 
 ---
 
@@ -43,14 +34,14 @@ The older `AGENT_SKILLS_MASTER_PLAN.md`, `AGENT_SKILLS_BACKLOG.md`, `ROADMAP.md`
 
 `P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6 → P1.7 → P1.8 → P1.9 → P1.10 → P1.11 → P2.1 → P2.2`
 
-P2.2 is complete and validated on `main`. PR #117 synchronized the prior governance checkpoint with the then-current merged state. The post-P2.2 architecture audit identified lifecycle verification enforcement as the next highest-value gap.
+Phase 1 and P2.1/P2.2 remain the highest numbered verified roadmap items. The lifecycle verification gate is merged on `main`; this task addresses the next audit-derived referential integrity gap without inventing a numbered P2.3.
 
 ---
 
 ## Current Audit-Driven Slice
 
-The Implementation Contract defines `verified` as a state whose claims have passed evidence and validation gates. The selected minimal correction adds a schema gate requiring evidence and traceable provenance for `verified` records, plus runtime validation that each referenced evidence record explicitly supports the Implementation. The existing production registry remains `candidate` and is unchanged.
+Every Implementation must point to an existing canonical Skill, and that Skill must list the Implementation in its `implementations` collection. The runtime now enforces this symmetry so duplicated relationship representations cannot silently diverge.
 
 ## Next Action
 
-Validate the lifecycle verification gate through the full test/build/CI quality gate. Do not invent a numbered P2.3 item; roadmap numbering remains intentionally open until the audit-derived slice is verified.
+Run the full behavioral, schema, graph, security, build, and CI quality gate for the active branch. Merge only after all required checks are explicitly green, using the exact current PR head SHA. After merge, reconcile this state checkpoint to the resulting main HEAD.

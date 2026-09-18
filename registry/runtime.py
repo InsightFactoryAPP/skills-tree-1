@@ -200,6 +200,10 @@ class UniversalRegistry:
             skill_id = implementation.get("skill")
             if skill_id not in skills:
                 raise ValueError(f"Dangling implementation skill reference: {skill_id}")
+            if implementation["id"] not in skills[skill_id].get("implementations", []):
+                raise ValueError(
+                    f"Implementation/skill linkage is not symmetric: {implementation['id']} -> {skill_id}"
+                )
             for evidence_id in implementation.get("evidence", []):
                 if evidence_id not in evidence:
                     raise ValueError(f"Dangling implementation evidence reference: {evidence_id}")
