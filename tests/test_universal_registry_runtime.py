@@ -55,3 +55,24 @@ def test_registry_provenance_points_to_existing_repository_sources() -> None:
         for entity in data["entities"][entity_type]:
             source = entity["provenance"]["source"]
             assert (ROOT / source).is_file(), source
+
+
+def test_first_implementation_slice_links_to_canonical_skill_and_evidence() -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    implementations = {item["id"]: item for item in data["entities"]["implementations"]}
+    evidence = {item["id"]: item for item in data["entities"]["evidence"]}
+    skills = {item["id"]: item for item in data["entities"]["skills"]}
+
+    implementation = implementations["implementation/code-reviewer-system"]
+    assert implementation["skill"] == "05-code/code-review"
+    assert skills[implementation["skill"]]["canonical"] is True
+    assert implementation["status"] == "candidate"
+    assert implementation["provenance"]["source"] == "systems/code-reviewer.md"
+    assert implementation["evidence"] == ["evidence/code-reviewer-system-source"]
+    assert evidence["evidence/code-reviewer-system-source"]["source"] == "systems/code-reviewer.md"
+
+
+def test_implementation_source_exists() -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    implementation = data["entities"]["implementations"][0]
+    assert (ROOT / implementation["provenance"]["source"]).is_file()
