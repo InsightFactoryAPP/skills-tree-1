@@ -44,6 +44,7 @@ def test_universal_registry_defines_all_core_entity_types() -> None:
         "evidence",
         "benchmark",
         "architecture",
+        "compatibility",
     }
 
     assert set(required) == expected
