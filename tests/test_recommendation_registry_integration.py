@@ -64,7 +64,7 @@ def test_target_incompatible_registered_candidate_is_filtered_before_final_resul
             "reasons": [
                 {
                     "code": "compatibility_missing",
-                    "message": "No compatibility evidence exists for 11-web/web-search and protocol/model-context-protocol",
+                    "message": "No evidence-backed compatibility fact for 11-web/web-search and protocol/model-context-protocol",
                 }
             ],
         }
