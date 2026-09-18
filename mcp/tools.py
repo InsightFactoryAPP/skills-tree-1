@@ -13,6 +13,7 @@ from typing import Any, Dict, List
 from fastapi.testclient import TestClient
 
 from api.main import app
+from implementations.code_reviewer import review_pull_request
 
 _client = TestClient(app)
 
@@ -47,7 +48,15 @@ def _get_json(path: str) -> Dict[str, Any]:
 # MCP tool implementations
 # ---------------------------------------------------------------------------
 
-def recommend_skills(goal: str, experience: str = "intermediate", time_budget_hours: int | None = None) -> Dict[str, Any]:
+def code_review(repo: str, pr_number: int, github_token: str) -> Dict[str, Any]:
+    """Run the registered Code Reviewer implementation through MCP."""
+    try:
+        return {"reviews": review_pull_request(repo, pr_number, github_token)}
+    except Exception as exc:
+        raise MCPToolError(str(exc)) from exc
+
+
+def recommend_skills(goal: str, experience: str = "intermediate", time_budget_hours: int | None = None):
     """
     Get live Architect recommendations for a goal.
 
@@ -88,6 +97,19 @@ def list_skills() -> List[Dict[str, Any]]:
 def tool_schemas() -> List[Dict[str, Any]]:
     """Return MCP-style tool contracts for registration and documentation."""
     return [
+        {
+            "name": "code_review",
+            "description": "Review a GitHub pull request using the registered Code Reviewer implementation.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "repo": {"type": "string"},
+                    "pr_number": {"type": "integer", "minimum": 1},
+                    "github_token": {"type": "string"},
+                },
+                "required": ["repo", "pr_number", "github_token"],
+            },
+        },
         {
             "name": "recommend_skills",
             "description": "Get live Architect skill recommendations for a goal.",
@@ -136,6 +158,8 @@ def tool_schemas() -> List[Dict[str, Any]]:
 def dispatch_tool(name: str, arguments: Dict[str, Any] | None = None) -> Any:
     """Generic dispatcher used by the MCP server wrapper and tests."""
     arguments = arguments or {}
+    if name == "code_review":
+        return code_review(**arguments)
     if name == "recommend_skills":
         return recommend_skills(**arguments)
     if name == "generate_blueprint":
