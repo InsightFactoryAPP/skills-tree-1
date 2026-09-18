@@ -283,6 +283,34 @@
         }
       }
     ],
-    "runtimes": []
+    "runtimes": [],
+    "compatibilities": [
+      {
+        "id": "compatibility/code-reviewer-mcp-model-context-protocol",
+        "version": "1.0",
+        "name": "Code Reviewer MCP compatibility",
+        "subject": "adapter/code-reviewer-mcp",
+        "target": {
+          "type": "protocol",
+          "id": "protocol/model-context-protocol"
+        },
+        "status": "conditional",
+        "evidence": [
+          "evidence/code-reviewer-mcp-boundary"
+        ],
+        "constraints": [
+          "requires the repository MCP stdio boundary",
+          "requires GitHub and Anthropic authentication at runtime"
+        ],
+        "limitations": [
+          "does not establish host-by-host MCP compatibility",
+          "no independent production deployment verification"
+        ],
+        "provenance": {
+          "source_type": "repository",
+          "source": "mcp/tools.py"
+        }
+      }
+    ]
   }
 }
