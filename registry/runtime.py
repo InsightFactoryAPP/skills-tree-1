@@ -1,3 +1,5 @@
+"""Deterministic runtime access to the universal registry seed."""
+
 from __future__ import annotations
 
 import json
@@ -6,29 +8,37 @@ from typing import Any
 
 
 class UniversalRegistry:
-    """Read-only runtime access to the universal registry."""
+    """Read-only registry facade for Goal -> Capability -> Skill resolution."""
 
-    def __init__(self, path: str | Path):
+    def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
         self._data = json.loads(self.path.read_text(encoding="utf-8"))
         self._validate_integrity()
 
-    def resolve_goal(self, goal_id: str) -> dict[str, Any]:
-        for goal in self._data["entities"]["goals"]:
-            if goal["id"] == goal_id:
-                return goal
-        raise KeyError(goal_id)
+    @property
+    def data(self) -> dict[str, Any]:
+        return self._data
 
-    def skills_for_goal(self, goal_id: str) -> list[str]:
+    def resolve_goal(self, goal_id: str) -> dict[str, Any]:
+        matches = [g for g in self._data["entities"]["goals"] if g["id"] == goal_id]
+        if not matches:
+            raise KeyError(f"Unknown goal: {goal_id}")
+        return matches[0]
+
+    def skills_for_goal(self, goal_id: str) -> list[dict[str, Any]]:
         goal = self.resolve_goal(goal_id)
-        skills: list[str] = []
+        capabilities = {item["id"]: item for item in self._data["entities"]["capabilities"]}
+        skills = {item["id"]: item for item in self._data["entities"]["skills"]}
+        result: dict[str, dict[str, Any]] = {}
         for capability_id in goal["capabilities"]:
-            capability = self._find("capabilities", capability_id)
-            skills.extend(capability["skills"])
-        return sorted(set(skills))
+            capability = capabilities[capability_id]
+            for skill_id in capability["skills"]:
+                result[skill_id] = skills[skill_id]
+        return [result[key] for key in sorted(result)]
 
     def compatibility_for(self, subject_id: str, target_type: str | None = None, target_id: str | None = None) -> list[dict[str, Any]]:
-        records = [x for x in self._data["entities"]["compatibilities"] if x["subject"] == subject_id]
+        """Return deterministic compatibility facts for an entity."""
+        records = [x for x in self._data["entities"].get("compatibilities", []) if x["subject"] == subject_id]
         if target_type is not None:
             records = [x for x in records if x["target"]["type"] == target_type]
         if target_id is not None:
@@ -72,12 +82,6 @@ class UniversalRegistry:
                 raise ValueError(f"Graph self-loop: {edge['source']}")
         return sorted(edges, key=lambda x: (x["source"], x["relationship_type"], x["target"]))
 
-    def _find(self, collection: str, entity_id: str) -> dict[str, Any]:
-        for record in self._data["entities"][collection]:
-            if record["id"] == entity_id:
-                return record
-        raise KeyError(entity_id)
-
     def _validate_integrity(self) -> None:
         entities = self._data.get("entities")
         if not isinstance(entities, dict):
@@ -88,52 +92,107 @@ class UniversalRegistry:
             if not isinstance(records, list):
                 raise ValueError(f"Entity collection must be a list: {entity_type}")
             for record in records:
-                if not isinstance(record, dict):
-                    raise ValueError(f"Entity record must be an object: {entity_type}")
                 entity_id = record.get("id")
-                if not isinstance(entity_id, str) or not entity_id:
-                    raise ValueError(f"Entity ID must be a non-empty string: {entity_type}")
-                if entity_id in ids:
-                    raise ValueError(f"Duplicate entity ID: {entity_id}")
+                if not isinstance(entity_id, str) or entity_id in ids:
+                    raise ValueError(f"Invalid or duplicate entity id: {entity_id!r}")
                 ids.add(entity_id)
-                if not isinstance(record.get("version"), str) or not record["version"]:
-                    raise ValueError(f"Entity version must be a non-empty string: {entity_id}")
-                if not isinstance(record.get("provenance"), dict):
-                    raise ValueError(f"Entity provenance must be an object: {entity_id}")
+                if "version" not in record or "provenance" not in record:
+                    raise ValueError(f"Missing universal metadata: {entity_id}")
 
-        for goal in entities.get("goals", []):
-            for capability_id in goal.get("capabilities", []):
-                self._find("capabilities", capability_id)
-        for capability in entities.get("capabilities", []):
-            for skill_id in capability.get("skills", []):
-                self._find("skills", skill_id)
-            for implementation_id in capability.get("implementations", []):
-                self._find("implementations", implementation_id)
-            for adapter_id in capability.get("adapters", []):
-                self._find("adapters", adapter_id)
-        for skill in entities.get("skills", []):
+        capabilities = {x["id"]: x for x in entities["capabilities"]}
+        skills = {x["id"]: x for x in entities["skills"]}
+        goals = {x["id"]: x for x in entities["goals"]}
+        for goal in goals.values():
+            for capability_id in goal["capabilities"]:
+                if capability_id not in capabilities:
+                    raise ValueError(f"Dangling capability reference: {capability_id}")
+        for capability in capabilities.values():
+            for skill_id in capability["skills"]:
+                if skill_id not in skills:
+                    raise ValueError(f"Dangling skill reference: {skill_id}")
+        implementations = {x["id"]: x for x in entities["implementations"]}
+        evidence = {x["id"]: x for x in entities["evidence"]}
+        adapters = {x["id"]: x for x in entities["adapters"]}
+        compatibilities = {x["id"]: x for x in entities.get("compatibilities", [])}
+
+        for skill in skills.values():
             if skill.get("canonical") is not True:
-                raise ValueError(f"Universal registry skills must be canonical: {skill['id']}")
-            for capability_id in skill.get("capabilities", []):
-                self._find("capabilities", capability_id)
+                raise ValueError(f"Registry skills must be canonical: {skill['id']}")
+            for capability_id in skill["capabilities"]:
+                if capability_id not in capabilities:
+                    raise ValueError(f"Dangling skill capability reference: {capability_id}")
             for implementation_id in skill.get("implementations", []):
-                self._find("implementations", implementation_id)
-        for implementation in entities.get("implementations", []):
-            self._find("skills", implementation["skill"])
+                if implementation_id not in implementations:
+                    raise ValueError(f"Dangling skill implementation reference: {implementation_id}")
+
+        for capability in capabilities.values():
+            for implementation_id in capability.get("implementations", []):
+                if implementation_id not in implementations:
+                    raise ValueError(f"Dangling capability implementation reference: {implementation_id}")
+            for adapter_id in capability.get("adapters", []):
+                if adapter_id not in adapters:
+                    raise ValueError(f"Dangling capability adapter reference: {adapter_id}")
+
+        for implementation in implementations.values():
+            skill_id = implementation.get("skill")
+            if skill_id not in skills:
+                raise ValueError(f"Dangling implementation skill reference: {skill_id}")
             for evidence_id in implementation.get("evidence", []):
-                self._find("evidence", evidence_id)
-        for adapter in entities.get("adapters", []):
-            self._find("implementations", adapter["implementation"])
-            for target in adapter.get("targets", []):
-                collection = target["type"] + "s"
-                self._find(collection, target["id"])
-            for evidence_id in adapter.get("evidence", []):
-                self._find("evidence", evidence_id)
-        for compatibility in entities.get("compatibilities", []):
-            subject = compatibility["subject"]
-            if not any(subject in [r.get("id") for r in entities.get(collection, [])] for collection in ("skills", "implementations", "adapters")):
-                raise ValueError(f"Invalid compatibility subject: {subject}")
-            target = compatibility["target"]
-            self._find(target["type"] + "s", target["id"])
+                if evidence_id not in evidence:
+                    raise ValueError(f"Dangling implementation evidence reference: {evidence_id}")
+
+        valid_compatibility_subject_types = {"skills", "implementations", "adapters"}
+        valid_compatibility_target_types = {"platform", "framework", "model", "protocol", "runtime"}
+        compatibility_target_collections = {
+            "platform": "platforms",
+            "framework": "frameworks",
+            "model": "models",
+            "protocol": "protocols",
+            "runtime": "runtimes",
+        }
+        for compatibility in compatibilities.values():
+            subject_id = compatibility.get("subject")
+            if subject_id not in ids:
+                raise ValueError(f"Dangling compatibility subject reference: {subject_id}")
+            subject_type = next((kind for kind, records in entities.items() if any(x["id"] == subject_id for x in records)), None)
+            if subject_type not in valid_compatibility_subject_types:
+                raise ValueError(f"Invalid compatibility subject type: {subject_type}")
+            target = compatibility.get("target", {})
+            target_type = target.get("type")
+            target_id = target.get("id")
+            if target_type not in valid_compatibility_target_types:
+                raise ValueError(f"Invalid compatibility target type: {target_type}")
+            if target_id not in {x["id"] for x in entities.get(compatibility_target_collections[target_type], [])}:
+                raise ValueError(f"Dangling compatibility target reference: {target_type}/{target_id}")
+            if compatibility.get("status") not in {"compatible", "conditional", "incompatible", "unknown", "deprecated"}:
+                raise ValueError(f"Invalid compatibility status: {compatibility.get('status')}")
             for evidence_id in compatibility.get("evidence", []):
-                self._find("evidence", evidence_id)
+                if evidence_id not in evidence:
+                    raise ValueError(f"Dangling compatibility evidence reference: {evidence_id}")
+        for evidence_item in evidence.values():
+            for supported_id in evidence_item.get("supports", []):
+                if supported_id not in ids:
+                    raise ValueError(f"Dangling evidence support reference: {supported_id}")
+
+        valid_target_types = {"platform", "framework", "protocol", "runtime"}
+        target_collections = {
+            "platform": "platforms",
+            "framework": "frameworks",
+            "protocol": "protocols",
+            "runtime": "runtimes",
+        }
+        for adapter in adapters.values():
+            implementation_id = adapter.get("implementation")
+            if implementation_id not in implementations:
+                raise ValueError(f"Dangling adapter implementation reference: {implementation_id}")
+            for target in adapter.get("targets", []):
+                target_type = target.get("type")
+                target_id = target.get("id")
+                if target_type not in valid_target_types:
+                    raise ValueError(f"Invalid adapter target type: {target_type}")
+                collection = target_collections[target_type]
+                if target_id not in {x["id"] for x in entities.get(collection, [])}:
+                    raise ValueError(f"Dangling adapter target reference: {target_type}/{target_id}")
+            for evidence_id in adapter.get("evidence", []):
+                if evidence_id not in evidence:
+                    raise ValueError(f"Dangling adapter evidence reference: {evidence_id}")
