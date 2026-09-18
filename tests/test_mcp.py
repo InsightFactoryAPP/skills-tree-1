@@ -24,6 +24,7 @@ from mcp.tools import (
     tool_schemas,
     dispatch_tool,
     MCPToolError,
+    code_review,
 )
 from mcp.server import handle_request
 
@@ -35,10 +36,11 @@ from mcp.server import handle_request
 class TestToolSchemas:
     def test_tool_count(self):
         schemas = tool_schemas()
-        assert len(schemas) == 4
+        assert len(schemas) == 5
 
     def test_tool_names(self):
         names = [t["name"] for t in tool_schemas()]
+        assert "code_review" in names
         assert "recommend_skills" in names
         assert "generate_blueprint" in names
         assert "list_goals" in names
@@ -58,6 +60,11 @@ class TestToolSchemas:
 # ===========================================================================
 
 class TestDirectTools:
+    def test_code_review_uses_registered_implementation(self, monkeypatch):
+        from mcp import tools as mcp_tools
+        monkeypatch.setattr(mcp_tools, "review_pull_request", lambda repo, pr_number, github_token: ["LGTM"])
+        assert code_review("SamoTech/skills-tree", 1, "token") == {"reviews": ["LGTM"]}
+
     def test_list_goals_returns_list(self):
         result = list_goals()
         assert isinstance(result, list)
@@ -152,7 +159,7 @@ class TestServerJSONRPC:
             "params": {},
         })
         assert "tools" in response["result"]
-        assert len(response["result"]["tools"]) == 4
+        assert len(response["result"]["tools"]) == 5
 
     def test_tools_call_recommend(self):
         response = handle_request({
