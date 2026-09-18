@@ -20,6 +20,7 @@ ROOT = _repo_root()
 TAXONOMY_PATH = ROOT / "meta" / "GOAL_TAXONOMY.md"
 GRAPH_PATH = ROOT / "data" / "SKILLS_GRAPH.json"
 BM_INDEX_PATH = ROOT / "benchmarks" / "INDEX.json"
+REGISTRY_PATH = ROOT / "registry" / "universal_registry.json"
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -28,7 +29,9 @@ if str(ROOT) not in sys.path:
 # Level-4 mapping and alias behavior, so every application surface shares one
 # taxonomy implementation rather than maintaining divergent parser semantics.
 import tools.taxonomy_runtime as _taxonomy_runtime  # noqa: F401
-from tools.architect import GoalTaxonomyParser, SkillsGraph, RecommendationEngine, BlueprintGenerator
+from registry.recommendation import RegistryRecommendationEngine
+from registry.runtime import UniversalRegistry
+from tools.architect import GoalTaxonomyParser, SkillsGraph, BlueprintGenerator
 from tools.ranking_calibrator import RankingCalibrator
 
 
@@ -47,9 +50,21 @@ def get_graph() -> SkillsGraph:
 
 
 @lru_cache(maxsize=1)
-def get_engine() -> RecommendationEngine:
+def get_registry() -> UniversalRegistry:
+    if not REGISTRY_PATH.exists():
+        raise FileNotFoundError(f"universal_registry.json not found at {REGISTRY_PATH}")
+    return UniversalRegistry(REGISTRY_PATH)
+
+
+@lru_cache(maxsize=1)
+def get_engine() -> RegistryRecommendationEngine:
     bm_path = str(BM_INDEX_PATH) if BM_INDEX_PATH.exists() else None
-    return RecommendationEngine(get_graph(), get_taxonomy(), bm_path)
+    return RegistryRecommendationEngine(
+        get_graph(),
+        get_taxonomy(),
+        bm_path,
+        registry=get_registry(),
+    )
 
 
 @lru_cache(maxsize=1)
