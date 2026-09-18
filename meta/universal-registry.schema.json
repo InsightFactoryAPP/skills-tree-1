@@ -4,7 +4,11 @@
   "title": "Skills Tree Universal Agent Registry",
   "description": "Canonical machine-readable contract for platform-agnostic agent capability knowledge.",
   "type": "object",
-  "required": ["schema_version", "entity_types", "relationship_types"],
+  "required": [
+    "schema_version",
+    "entity_types",
+    "relationship_types"
+  ],
   "properties": {
     "schema_version": {
       "type": "string",
@@ -21,6 +25,8 @@
         "model",
         "platform",
         "framework",
+        "protocol",
+        "runtime",
         "adapter",
         "evidence",
         "benchmark",
@@ -28,18 +34,48 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "goal": { "$ref": "#/$defs/entityDefinition" },
-        "capability": { "$ref": "#/$defs/entityDefinition" },
-        "skill": { "$ref": "#/$defs/skillDefinition" },
-        "implementation": { "$ref": "#/$defs/entityDefinition" },
-        "tool": { "$ref": "#/$defs/entityDefinition" },
-        "model": { "$ref": "#/$defs/entityDefinition" },
-        "platform": { "$ref": "#/$defs/entityDefinition" },
-        "framework": { "$ref": "#/$defs/entityDefinition" },
-        "adapter": { "$ref": "#/$defs/entityDefinition" },
-        "evidence": { "$ref": "#/$defs/entityDefinition" },
-        "benchmark": { "$ref": "#/$defs/entityDefinition" },
-        "architecture": { "$ref": "#/$defs/entityDefinition" }
+        "goal": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "capability": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "skill": {
+          "$ref": "#/$defs/skillDefinition"
+        },
+        "implementation": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "tool": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "model": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "platform": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "framework": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "adapter": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "evidence": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "benchmark": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "architecture": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "protocol": {
+          "$ref": "#/$defs/entityDefinition"
+        },
+        "runtime": {
+          "$ref": "#/$defs/entityDefinition"
+        }
       }
     },
     "relationship_types": {
@@ -62,7 +98,8 @@
           "validated_by_benchmark",
           "constrained_by",
           "composes_with",
-          "depends_on"
+          "depends_on",
+          "exposed_through"
         ]
       }
     }
@@ -70,20 +107,36 @@
   "$defs": {
     "entityDefinition": {
       "type": "object",
-      "required": ["id", "version", "provenance"],
+      "required": [
+        "id",
+        "version",
+        "provenance"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "version": { "$ref": "#/$defs/version" },
-        "provenance": { "$ref": "#/$defs/provenance" }
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
       },
       "additionalProperties": true
     },
     "skillDefinition": {
       "allOf": [
-        { "$ref": "#/$defs/entityDefinition" },
+        {
+          "$ref": "#/$defs/entityDefinition"
+        },
         {
           "type": "object",
-          "required": ["canonical", "capabilities", "implementations"],
+          "required": [
+            "canonical",
+            "capabilities",
+            "implementations"
+          ],
           "properties": {
             "canonical": {
               "type": "boolean",
@@ -93,12 +146,16 @@
             "capabilities": {
               "type": "array",
               "uniqueItems": true,
-              "items": { "$ref": "#/$defs/id" }
+              "items": {
+                "$ref": "#/$defs/id"
+              }
             },
             "implementations": {
               "type": "array",
               "uniqueItems": true,
-              "items": { "$ref": "#/$defs/id" }
+              "items": {
+                "$ref": "#/$defs/id"
+              }
             }
           }
         }
@@ -115,7 +172,9 @@
     },
     "provenance": {
       "type": "object",
-      "required": ["source_type"],
+      "required": [
+        "source_type"
+      ],
       "properties": {
         "source_type": {
           "type": "string",
@@ -129,10 +188,22 @@
             "experimental"
           ]
         },
-        "source": { "type": "string", "minLength": 1 },
-        "verified_at": { "type": "string", "format": "date-time" },
-        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-        "methodology": { "type": "string" }
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "methodology": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     }
