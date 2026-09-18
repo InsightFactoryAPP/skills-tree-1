@@ -139,7 +139,7 @@
             "constraints": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
             "limitations": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         }
       ]
     },
