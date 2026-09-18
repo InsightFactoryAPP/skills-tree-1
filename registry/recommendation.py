@@ -96,9 +96,6 @@ class RegistryRecommendationEngine(RecommendationEngine):
             return skill_ids, {skill_id: {skill_id} for skill_id in skill_ids}
 
         entities = self.registry.data["entities"]
-        implementations = {
-            item["id"]: item for item in entities.get("implementations", [])
-        }
         adapters = entities.get("adapters", [])
         skills = {item["id"]: item for item in entities.get("skills", [])}
 
