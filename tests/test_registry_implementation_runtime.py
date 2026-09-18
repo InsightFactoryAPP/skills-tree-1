@@ -113,3 +113,30 @@ def test_implementation_skill_linkage_accepts_symmetric_record() -> None:
     implementation = registry.resolve_implementation("implementation/code-reviewer-system")
     skill = next(item for item in registry.data["entities"]["skills"] if item["id"] == implementation["skill"])
     assert implementation["id"] in skill["implementations"]
+
+
+def test_read_only_facade_returns_independent_snapshots() -> None:
+    registry = UniversalRegistry(REGISTRY_PATH)
+    implementation_id = "implementation/code-reviewer-system"
+
+    data = registry.data
+    data["entities"]["implementations"][0]["status"] = "verified"
+    assert registry.resolve_implementation(implementation_id)["status"] == "candidate"
+
+    implementation = registry.resolve_implementation(implementation_id)
+    implementation["evidence"].clear()
+    assert registry.resolve_implementation(implementation_id)["evidence"]
+
+    skills = registry.skills_for_goal("goal/software-engineering")
+    skills[0]["implementations"].clear()
+    assert registry.implementations_for_skill("05-code/code-review")
+
+    compatibilities = registry.compatibility_for("adapter/code-reviewer-mcp")
+    if compatibilities:
+        compatibilities[0]["status"] = "incompatible"
+        assert registry.compatibility_for("adapter/code-reviewer-mcp")[0]["status"] != "incompatible"
+
+    edges = registry.graph_edges()
+    if edges:
+        edges[0]["relationship_type"] = "mutated"
+        assert registry.graph_edges()[0]["relationship_type"] != "mutated"
