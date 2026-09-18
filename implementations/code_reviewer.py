@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 from typing import List
 
-import anthropic
 import httpx
 
 SYSTEM_PROMPT = """
@@ -48,9 +47,11 @@ def split_diff_into_chunks(diff: str, max_lines: int = 80) -> List[str]:
         chunks.append("\n".join(current))
     return chunks
 
-def review_chunk(chunk: str, client: anthropic.Anthropic | None = None) -> str:
+def review_chunk(chunk: str, client: object | None = None) -> str:
     """Review one diff chunk using the configured Anthropic client."""
-    client = client or anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    if client is None:
+        import anthropic
+        client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     response = client.messages.create(
         model="claude-opus-4-5",
         max_tokens=1024,
@@ -59,7 +60,7 @@ def review_chunk(chunk: str, client: anthropic.Anthropic | None = None) -> str:
     )
     return response.content[0].text
 
-def review_pull_request(repo: str, pr_number: int, github_token: str, client: anthropic.Anthropic | None = None) -> List[str]:
+def review_pull_request(repo: str, pr_number: int, github_token: str, client: object | None = None) -> List[str]:
     """Fetch and review a GitHub pull request diff."""
     diff = get_pr_diff(repo, pr_number, github_token)
     return [review_chunk(chunk, client=client) for chunk in split_diff_into_chunks(diff)]
