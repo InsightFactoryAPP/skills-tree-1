@@ -37,6 +37,7 @@ class UniversalRegistry:
         self._data = json.loads(self.path.read_text(encoding="utf-8"))
         self._validate_integrity()
         self._validate_implementation_contracts()
+        self._validate_graph_contract()
 
     @property
     def data(self) -> dict[str, Any]:
@@ -120,6 +121,15 @@ class UniversalRegistry:
             if edge["source"] == edge["target"]:
                 raise ValueError(f"Graph self-loop: {edge['source']}")
         return deepcopy(sorted(edges, key=lambda x: (x["source"], x["relationship_type"], x["target"])))
+
+    def _validate_graph_contract(self) -> None:
+        """Validate the typed universal graph against its normative JSON Schema."""
+        graph_path = self.path.parent.parent / "graph" / "universal_graph.json"
+        schema_path = self.path.parent.parent / "meta" / "universal-graph.schema.json"
+        graph = json.loads(graph_path.read_text(encoding="utf-8"))
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        Draft202012Validator(schema).validate(graph)
+        self._graph_data = graph
 
     def _validate_implementation_contracts(self) -> None:
         """Validate every registered Implementation against the normative contract."""

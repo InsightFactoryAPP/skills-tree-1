@@ -27,3 +27,28 @@ Implement only the read-only boundary invariant:
 4. State: update `MEMORY_STATE.md` in the same task commit.
 
 No registry entities, providers, compatibility claims, adapters, or MCP classifications are added or changed.
+
+---
+
+## Follow-up audit — 2026-09-19
+
+The read-only facade correction is now merged. A further review of the P1.10 universal graph boundary found that `UniversalRegistry.graph_edges()` validated endpoint identity and self-loops but did not validate the loaded graph artifact against its declared normative `meta/universal-graph.schema.json` contract. This left relationship vocabulary, provenance shape, and other graph-level schema constraints outside the runtime trust boundary despite the graph being documented as schema-governed.
+
+### Evidence reviewed
+
+- `meta/universal-graph.schema.json` defines the normative graph contract, including required edge fields, relationship vocabulary, endpoint type enums, and provenance structure.
+- `graph/universal_graph.json` is the current universal graph artifact consumed by `UniversalRegistry.graph_edges()`.
+- `registry/runtime.py` previously loaded the graph and checked endpoint types/self-loops but did not invoke `Draft202012Validator` against the graph contract.
+- Existing graph behavior remained deterministic and reference-aware, but schema-invalid relationship values could only be detected by external validation rather than registry initialization.
+
+### Selected vertical slice
+
+Implement only graph contract enforcement:
+
+1. Runtime: validate `graph/universal_graph.json` with `meta/universal-graph.schema.json` during registry initialization.
+2. Preserve the existing endpoint, self-loop, and deterministic ordering checks.
+3. Add a behavioral regression test that corrupts a graph relationship type and verifies registry initialization rejects it.
+4. Keep the current graph artifact and all registry entities unchanged.
+5. Update `MEMORY_STATE.md` in the same task commit.
+
+This is an audit-derived correctness slice and is intentionally not assigned a fabricated P2.3 number.

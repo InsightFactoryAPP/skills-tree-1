@@ -45,6 +45,13 @@ def test_registry_initialization_validates_implementation_contract(tmp_path: Pat
     contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
     contract_target.parent.mkdir()
     contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    graph = ROOT / "graph" / "universal_graph.json"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(graph.read_text(encoding="utf-8"), encoding="utf-8")
+    graph_contract = ROOT / "meta" / "universal-graph.schema.json"
+    graph_contract_target = tmp_path / "meta" / "universal-graph.schema.json"
+    graph_contract_target.write_text(graph_contract.read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(Exception):
         UniversalRegistry(registry_path)
 
@@ -61,6 +68,13 @@ def test_verified_implementation_requires_evidence_and_traceable_provenance(tmp_
     contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
     contract_target.parent.mkdir()
     contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    graph = ROOT / "graph" / "universal_graph.json"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(graph.read_text(encoding="utf-8"), encoding="utf-8")
+    graph_contract = ROOT / "meta" / "universal-graph.schema.json"
+    graph_contract_target = tmp_path / "meta" / "universal-graph.schema.json"
+    graph_contract_target.write_text(graph_contract.read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(Exception, match="evidence"):
         UniversalRegistry(registry_path)
 
@@ -78,6 +92,13 @@ def test_verified_implementation_evidence_must_support_record(tmp_path: Path) ->
     contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
     contract_target.parent.mkdir()
     contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    graph = ROOT / "graph" / "universal_graph.json"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(graph.read_text(encoding="utf-8"), encoding="utf-8")
+    graph_contract = ROOT / "meta" / "universal-graph.schema.json"
+    graph_contract_target = tmp_path / "meta" / "universal-graph.schema.json"
+    graph_contract_target.write_text(graph_contract.read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(ValueError, match="does not support implementation"):
         UniversalRegistry(registry_path)
 
@@ -93,6 +114,13 @@ def test_verified_implementation_with_supporting_evidence_passes(tmp_path: Path)
     contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
     contract_target.parent.mkdir()
     contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    graph = ROOT / "graph" / "universal_graph.json"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(graph.read_text(encoding="utf-8"), encoding="utf-8")
+    graph_contract = ROOT / "meta" / "universal-graph.schema.json"
+    graph_contract_target = tmp_path / "meta" / "universal-graph.schema.json"
+    graph_contract_target.write_text(graph_contract.read_text(encoding="utf-8"), encoding="utf-8")
     UniversalRegistry(registry_path)
 
 
@@ -140,3 +168,23 @@ def test_read_only_facade_returns_independent_snapshots() -> None:
     if edges:
         edges[0]["relationship_type"] = "mutated"
         assert registry.graph_edges()[0]["relationship_type"] != "mutated"
+
+
+def test_registry_initialization_validates_universal_graph_contract(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    contract = ROOT / "meta" / "implementation-contract.schema.json"
+    contract_target = tmp_path / "meta" / "implementation-contract.schema.json"
+    contract_target.parent.mkdir()
+    contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
+    graph = json.loads((ROOT / "graph" / "universal_graph.json").read_text(encoding="utf-8"))
+    graph["edges"][0]["relationship_type"] = "not-a-real-relationship"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(json.dumps(graph), encoding="utf-8")
+    graph_contract_target = tmp_path / "meta" / "universal-graph.schema.json"
+    graph_contract_target.write_text((ROOT / "meta" / "universal-graph.schema.json").read_text(encoding="utf-8"), encoding="utf-8")
+    with pytest.raises(Exception):
+        UniversalRegistry(registry_path)
