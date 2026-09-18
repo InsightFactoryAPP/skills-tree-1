@@ -79,9 +79,10 @@ def test_implementation_source_exists() -> None:
     assert (ROOT / implementation["provenance"]["source"]).is_file()
 
 
-def test_first_adapter_gate_is_not_promoted_without_implementation_mapping() -> None:
+def test_first_real_adapter_is_registered_as_candidate() -> None:
     data = json.loads(REGISTRY.read_text(encoding="utf-8"))
-    assert data["entities"]["adapters"] == []
+    adapter = next(item for item in data["entities"]["adapters"] if item["id"] == "adapter/code-reviewer-mcp")
+    assert adapter["status"] == "candidate"
     implementation = next(
         item for item in data["entities"]["implementations"]
         if item["id"] == "implementation/code-reviewer-system"
