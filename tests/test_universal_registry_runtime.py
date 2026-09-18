@@ -67,9 +67,10 @@ def test_first_implementation_slice_links_to_canonical_skill_and_evidence() -> N
     assert implementation["skill"] == "05-code/code-review"
     assert skills[implementation["skill"]]["canonical"] is True
     assert implementation["status"] == "candidate"
-    assert implementation["provenance"]["source"] == "systems/code-reviewer.md"
-    assert implementation["evidence"] == ["evidence/code-reviewer-system-source"]
+    assert implementation["provenance"]["source"] == "implementations/code_reviewer.py"
+    assert implementation["evidence"] == ["evidence/code-reviewer-system-source", "evidence/code-reviewer-runtime"]
     assert evidence["evidence/code-reviewer-system-source"]["source"] == "systems/code-reviewer.md"
+    assert evidence["evidence/code-reviewer-runtime"]["source"] == "implementations/code_reviewer.py"
 
 
 def test_implementation_source_exists() -> None:
@@ -135,3 +136,11 @@ def test_registry_rejects_dangling_adapter_target(tmp_path: Path) -> None:
     broken.write_text(json.dumps(data), encoding="utf-8")
     with pytest.raises(ValueError, match="Dangling adapter target reference"):
         UniversalRegistry(broken)
+
+def test_first_real_mcp_adapter_links_implementation_protocol_and_evidence() -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    adapter = next(item for item in data["entities"]["adapters"] if item["id"] == "adapter/code-reviewer-mcp")
+    assert adapter["implementation"] == "implementation/code-reviewer-system"
+    assert adapter["targets"] == [{"type": "protocol", "id": "protocol/model-context-protocol"}]
+    assert adapter["evidence"] == ["evidence/code-reviewer-runtime", "evidence/code-reviewer-mcp-boundary"]
+    assert adapter["status"] == "candidate"
