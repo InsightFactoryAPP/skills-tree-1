@@ -47,4 +47,6 @@ The first registry fact is intentionally **conditional**: the Code Reviewer MCP 
 
 `UniversalRegistry.compatibility_for(subject_id, target_type=None, target_id=None)` returns matching facts in deterministic ID order.
 
-Eligibility logic will consume these facts in P1.9. It must filter on compatibility before recommendation ranking; compatibility failures must never be hidden inside a ranking score.
+Eligibility logic will consume these facts in P1.9.
+
+The contract is intentionally small: compatibility facts describe applicability; they do not rank candidates. It must filter on compatibility before recommendation ranking; compatibility failures must never be hidden inside a ranking score.
