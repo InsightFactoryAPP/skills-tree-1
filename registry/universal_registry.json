@@ -67,7 +67,9 @@
         "implementations": [
           "implementation/code-reviewer-system"
         ],
-        "adapters": [],
+        "adapters": [
+          "adapter/code-reviewer-mcp"
+        ],
         "provenance": {
           "source_type": "repository",
           "source": "skills/05-code/code-review.md"
@@ -150,10 +152,11 @@
         "provider": "Anthropic",
         "provenance": {
           "source_type": "repository",
-          "source": "systems/code-reviewer.md"
+          "source": "implementations/code_reviewer.py"
         },
         "evidence": [
-          "evidence/code-reviewer-system-source"
+          "evidence/code-reviewer-system-source",
+          "evidence/code-reviewer-runtime"
         ],
         "status": "candidate"
       }
@@ -162,7 +165,67 @@
     "models": [],
     "platforms": [],
     "frameworks": [],
-    "adapters": [],
+    "adapters": [
+      {
+        "id": "adapter/code-reviewer-mcp",
+        "version": "1.0",
+        "name": "Code Reviewer MCP Adapter",
+        "implementation": "implementation/code-reviewer-system",
+        "targets": [
+          {
+            "type": "protocol",
+            "id": "protocol/model-context-protocol"
+          }
+        ],
+        "input_mapping": [
+          {
+            "source": "MCP tools/call.arguments.repo",
+            "target": "review_pull_request.repo"
+          },
+          {
+            "source": "MCP tools/call.arguments.pr_number",
+            "target": "review_pull_request.pr_number"
+          },
+          {
+            "source": "MCP tools/call.arguments.github_token",
+            "target": "review_pull_request.github_token"
+          }
+        ],
+        "output_mapping": [
+          {
+            "source": "review_pull_request.reviews",
+            "target": "MCP tools/call.result.content[0].text"
+          }
+        ],
+        "auth_requirements": [
+          "GitHub token",
+          "Anthropic API key"
+        ],
+        "runtime_requirements": [
+          "Python runtime",
+          "MCP stdio server",
+          "Anthropic SDK",
+          "httpx"
+        ],
+        "constraints": [
+          "requires access to the target GitHub pull request",
+          "review behavior depends on configured Anthropic model"
+        ],
+        "limitations": [
+          "adapter exposes review results through MCP and does not post GitHub review comments",
+          "no independent production benchmark registered"
+        ],
+        "provenance": {
+          "source_type": "repository",
+          "source": "mcp/tools.py"
+        },
+        "evidence": [
+          "evidence/code-reviewer-runtime",
+          "evidence/code-reviewer-mcp-boundary"
+        ],
+        "status": "candidate"
+      }
+    ],
     "evidence": [
       {
         "id": "evidence/code-reviewer-system-source",
@@ -176,6 +239,34 @@
         "provenance": {
           "source_type": "repository",
           "source": "systems/code-reviewer.md"
+        }
+      },
+      {
+        "id": "evidence/code-reviewer-runtime",
+        "version": "1.0",
+        "name": "Code Reviewer executable implementation",
+        "type": "repository",
+        "source": "implementations/code_reviewer.py",
+        "supports": [
+          "implementation/code-reviewer-system"
+        ],
+        "provenance": {
+          "source_type": "repository",
+          "source": "implementations/code_reviewer.py"
+        }
+      },
+      {
+        "id": "evidence/code-reviewer-mcp-boundary",
+        "version": "1.0",
+        "name": "Code Reviewer MCP adapter boundary",
+        "type": "repository",
+        "source": "mcp/tools.py",
+        "supports": [
+          "adapter/code-reviewer-mcp"
+        ],
+        "provenance": {
+          "source_type": "repository",
+          "source": "mcp/tools.py"
         }
       }
     ],
