@@ -30,7 +30,8 @@
         "adapter",
         "evidence",
         "benchmark",
-        "architecture"
+        "architecture",
+        "compatibility"
       ],
       "additionalProperties": false,
       "properties": {
@@ -69,6 +70,9 @@
         },
         "architecture": {
           "$ref": "#/$defs/entityDefinition"
+        },
+        "compatibility": {
+          "$ref": "#/$defs/compatibilityDefinition"
         },
         "protocol": {
           "$ref": "#/$defs/entityDefinition"
@@ -113,7 +117,33 @@
         "provenance"
       ],
       "properties": {
-        "id": {
+        "compatibilityDefinition": {
+      "allOf": [
+        { "$ref": "#/$defs/entityDefinition" },
+        {
+          "type": "object",
+          "required": ["subject", "target", "status", "evidence"],
+          "properties": {
+            "subject": { "$ref": "#/$defs/id" },
+            "target": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": { "type": "string", "enum": ["platform", "framework", "model", "protocol", "runtime"] },
+                "id": { "$ref": "#/$defs/id" }
+              },
+              "additionalProperties": false
+            },
+            "status": { "type": "string", "enum": ["compatible", "conditional", "incompatible", "unknown", "deprecated"] },
+            "evidence": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+            "constraints": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+            "limitations": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "id": {
           "$ref": "#/$defs/id"
         },
         "version": {
