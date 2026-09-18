@@ -3,7 +3,7 @@
 MCP server tests — Sprint C-10
 
 Validates the Architect MCP tool layer and minimal JSON-RPC server wrapper.
-24 tests total.
+25 tests total.
 """
 
 import sys
