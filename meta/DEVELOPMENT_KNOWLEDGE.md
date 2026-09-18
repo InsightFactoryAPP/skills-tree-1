@@ -294,3 +294,8 @@ When a roadmap task is completed, update this document only with verifiable evid
 ## Current roadmap state
 
 P1.1 through P1.8 are verified on `main`. P1.9 introduces the deterministic eligibility boundary in `registry/eligibility.py` with `meta/eligibility-contract.schema.json` and behavioral tests. The first slice uses registered candidates and optional typed targets; compatibility is evaluated before ranking. No authoritative prerequisite registry exists yet, so prerequisite evaluation is not fabricated.
+
+
+### P1.10 — Typed Universal Graph
+
+P1.10 is implemented as an additive typed graph slice in `graph/universal_graph.json`, governed by `meta/universal-graph.schema.json` and exposed through deterministic `UniversalRegistry.graph_edges()`. Endpoint types are checked against registry entities, self-loops are rejected, and provenance is required. The existing `data/SKILLS_GRAPH.json` remains the generated skill-corpus graph; it is not silently replaced by the universal graph.
