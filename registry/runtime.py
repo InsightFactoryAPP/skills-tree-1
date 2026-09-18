@@ -104,7 +104,7 @@ class UniversalRegistry:
                 if evidence_id not in evidence:
                     raise ValueError(f"Dangling implementation evidence reference: {evidence_id}")
 
-        valid_compatibility_subject_types = {"skill", "implementation", "adapter"}
+        valid_compatibility_subject_types = {"skills", "implementations", "adapters"}
         valid_compatibility_target_types = {"platform", "framework", "model", "protocol", "runtime"}
         compatibility_target_collections = {
             "platform": "platforms",
