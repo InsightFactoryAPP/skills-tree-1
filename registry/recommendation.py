@@ -41,9 +41,9 @@ class RegistryRecommendationEngine(RecommendationEngine):
 
         registered_skills = self._registered_skill_ids()
         candidate_skills = [
-            skill["id"]
+            self._normalize_skill_id(skill.get("id"))
             for skill in result.get("required_skills", []) + result.get("optional_skills", [])
-            if skill.get("id") in registered_skills
+            if self._normalize_skill_id(skill.get("id")) in registered_skills
         ]
         candidate_ids, candidate_to_skills = self._eligibility_candidates(candidate_skills, target)
         eligibility = self.eligibility.evaluate(candidate_ids, target=target)
@@ -127,6 +127,18 @@ class RegistryRecommendationEngine(RecommendationEngine):
             for item in eligibility.get("candidates", [])
             if item["id"] == candidate_id
         ]
+
+    def _normalize_skill_id(self, skill_id: str | None) -> str | None:
+        """Map legacy taxonomy skill IDs to unique canonical registry IDs."""
+        if skill_id is None:
+            return None
+        registered = self._registered_skill_ids()
+        if skill_id in registered:
+            return skill_id
+        matches = sorted(candidate for candidate in registered if candidate.rsplit("/", 1)[-1] == skill_id)
+        if len(matches) == 1:
+            return matches[0]
+        return None
 
     def _registered_skill_ids(self) -> set[str]:
         return {skill["id"] for skill in self.registry.data["entities"].get("skills", [])}
