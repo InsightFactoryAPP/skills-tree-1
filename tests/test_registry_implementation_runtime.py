@@ -94,3 +94,22 @@ def test_verified_implementation_with_supporting_evidence_passes(tmp_path: Path)
     contract_target.parent.mkdir()
     contract_target.write_text(contract.read_text(encoding="utf-8"), encoding="utf-8")
     UniversalRegistry(registry_path)
+
+
+def test_implementation_skill_linkage_must_be_symmetric(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    implementation = registry["entities"]["implementations"][0]
+    skill = next(item for item in registry["entities"]["skills"] if item["id"] == implementation["skill"])
+    skill["implementations"] = []
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    with pytest.raises(ValueError, match="not symmetric"):
+        UniversalRegistry(registry_path)
+
+
+def test_implementation_skill_linkage_accepts_symmetric_record() -> None:
+    registry = UniversalRegistry(REGISTRY_PATH)
+    implementation = registry.resolve_implementation("implementation/code-reviewer-system")
+    skill = next(item for item in registry.data["entities"]["skills"] if item["id"] == implementation["skill"])
+    assert implementation["id"] in skill["implementations"]
