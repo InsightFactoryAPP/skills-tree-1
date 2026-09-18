@@ -45,6 +45,27 @@ class UniversalRegistry:
             records = [x for x in records if x["target"]["id"] == target_id]
         return sorted(records, key=lambda x: x["id"])
 
+
+    def graph_edges(self) -> list[dict[str, Any]]:
+        """Return validated typed universal-graph edges in deterministic order."""
+        graph = getattr(self, "_graph_data", None)
+        if graph is None:
+            graph_path = self.path.parent.parent / "graph" / "universal_graph.json"
+            graph = json.loads(graph_path.read_text(encoding="utf-8"))
+        entities = self._data["entities"]
+        by_id = {
+            record["id"]: entity_type.rstrip("s")
+            for entity_type, records in entities.items()
+            for record in records
+        }
+        edges = graph.get("edges", [])
+        for edge in edges:
+            if by_id.get(edge["source"]) != edge["source_type"] or by_id.get(edge["target"]) != edge["target_type"]:
+                raise ValueError(f"Invalid typed graph endpoint: {edge['source']} -> {edge['target']}")
+            if edge["source"] == edge["target"]:
+                raise ValueError(f"Graph self-loop: {edge['source']}")
+        return sorted(edges, key=lambda x: (x["source"], x["relationship_type"], x["target"]))
+
     def _validate_integrity(self) -> None:
         entities = self._data.get("entities")
         if not isinstance(entities, dict):
