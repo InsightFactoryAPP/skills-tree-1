@@ -64,9 +64,60 @@ class UniversalRegistry:
             for skill_id in capability["skills"]:
                 if skill_id not in skills:
                     raise ValueError(f"Dangling skill reference: {skill_id}")
+        implementations = {x["id"]: x for x in entities["implementations"]}
+        evidence = {x["id"]: x for x in entities["evidence"]}
+        adapters = {x["id"]: x for x in entities["adapters"]}
+
         for skill in skills.values():
             if skill.get("canonical") is not True:
                 raise ValueError(f"Registry skills must be canonical: {skill['id']}")
             for capability_id in skill["capabilities"]:
                 if capability_id not in capabilities:
                     raise ValueError(f"Dangling skill capability reference: {capability_id}")
+            for implementation_id in skill.get("implementations", []):
+                if implementation_id not in implementations:
+                    raise ValueError(f"Dangling skill implementation reference: {implementation_id}")
+
+        for capability in capabilities.values():
+            for implementation_id in capability.get("implementations", []):
+                if implementation_id not in implementations:
+                    raise ValueError(f"Dangling capability implementation reference: {implementation_id}")
+            for adapter_id in capability.get("adapters", []):
+                if adapter_id not in adapters:
+                    raise ValueError(f"Dangling capability adapter reference: {adapter_id}")
+
+        for implementation in implementations.values():
+            skill_id = implementation.get("skill")
+            if skill_id not in skills:
+                raise ValueError(f"Dangling implementation skill reference: {skill_id}")
+            for evidence_id in implementation.get("evidence", []):
+                if evidence_id not in evidence:
+                    raise ValueError(f"Dangling implementation evidence reference: {evidence_id}")
+
+        for evidence_item in evidence.values():
+            for supported_id in evidence_item.get("supports", []):
+                if supported_id not in ids:
+                    raise ValueError(f"Dangling evidence support reference: {supported_id}")
+
+        valid_target_types = {"platform", "framework", "protocol", "runtime"}
+        target_collections = {
+            "platform": "platforms",
+            "framework": "frameworks",
+            "protocol": "protocols",
+            "runtime": "runtimes",
+        }
+        for adapter in adapters.values():
+            implementation_id = adapter.get("implementation")
+            if implementation_id not in implementations:
+                raise ValueError(f"Dangling adapter implementation reference: {implementation_id}")
+            for target in adapter.get("targets", []):
+                target_type = target.get("type")
+                target_id = target.get("id")
+                if target_type not in valid_target_types:
+                    raise ValueError(f"Invalid adapter target type: {target_type}")
+                collection = target_collections[target_type]
+                if target_id not in {x["id"] for x in entities.get(collection, [])}:
+                    raise ValueError(f"Dangling adapter target reference: {target_type}/{target_id}")
+            for evidence_id in adapter.get("evidence", []):
+                if evidence_id not in evidence:
+                    raise ValueError(f"Dangling adapter evidence reference: {evidence_id}")
