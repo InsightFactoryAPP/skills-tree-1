@@ -11,12 +11,12 @@
 
 | Key | Value |
 |---|---|
-| Main HEAD at task baseline | `53f25e1ca33dabb455d4eeea2da01a4be71bee31` |
+| Main HEAD at task baseline | `f6ea5f593a90003455611c824f7b96fcef9018b2` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
 | Highest verified roadmap item | P2.2 — Typed runtime access and validation |
-| Current audit-derived slice | Read-only registry facade integrity |
-| Active branch | `phase2/registry-readonly-boundary-20260919` |
+| Current audit-derived slice | Universal graph contract validation |
+| Active branch | `phase2/validate-universal-graph-contract-20260919` |
 | Active governance blocker | None at task baseline |
 | Current implementation registry | `implementation/code-reviewer-system` |
 | MCP classification | Protocol; not an Implementation |
@@ -34,13 +34,13 @@ The older June 2026 launch/content roadmap documents remain historical records. 
 
 `P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6 → P1.7 → P1.8 → P1.9 → P1.10 → P1.11 → P2.1 → P2.2`
 
-Phase 1 and P2.1/P2.2 remain the highest numbered verified roadmap items. The lifecycle verification gate and Skill↔Implementation symmetry are merged on `main`; this task addresses the next audit-derived runtime integrity gap without inventing a numbered P2.3.
+Phase 1 and P2.1/P2.2 remain the highest numbered verified roadmap items. The lifecycle verification gate, Skill↔Implementation symmetry, and read-only registry boundary are merged on `main`; this task addresses the next audit-derived graph integrity gap without inventing a numbered P2.3.
 
 ---
 
 ## Current Audit-Driven Slice
 
-The runtime is documented as a read-only deterministic facade. Public accessors now return independent snapshots so callers cannot mutate validated internal registry state after initialization.
+The universal graph is a schema-governed artifact. The runtime now validates `graph/universal_graph.json` against `meta/universal-graph.schema.json` during registry initialization while preserving typed endpoint, self-loop, and deterministic ordering checks.
 
 ## Next Action
 
