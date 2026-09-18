@@ -39,27 +39,39 @@ class RegistryRecommendationEngine(RecommendationEngine):
         if "error" in result or self.eligibility is None:
             return result
 
-        candidate_ids = [
+        registered_skills = self._registered_skill_ids()
+        candidate_skills = [
             skill["id"]
             for skill in result.get("required_skills", []) + result.get("optional_skills", [])
-            if skill.get("id") in self._registered_skill_ids()
+            if skill.get("id") in registered_skills
         ]
+        candidate_ids, candidate_to_skills = self._eligibility_candidates(candidate_skills, target)
         eligibility = self.eligibility.evaluate(candidate_ids, target=target)
         result["eligibility"] = eligibility
 
-        ineligible = {
+        ineligible_candidates = {
             item["id"]
             for item in eligibility["candidates"]
             if item["status"] == "ineligible"
         }
-        if not ineligible:
+        ineligible_skills = {
+            skill_id
+            for candidate_id in ineligible_candidates
+            for skill_id in candidate_to_skills.get(candidate_id, {candidate_id})
+            if all(
+                candidate_status == "ineligible"
+                for related_id in self._skill_candidates(skill_id, target)
+                for candidate_status in self._candidate_statuses(related_id, eligibility)
+            )
+        }
+        if not ineligible_skills:
             return result
 
         result["required_skills"] = [
-            skill for skill in result.get("required_skills", []) if skill["id"] not in ineligible
+            skill for skill in result.get("required_skills", []) if skill["id"] not in ineligible_skills
         ]
         result["optional_skills"] = [
-            skill for skill in result.get("optional_skills", []) if skill["id"] not in ineligible
+            skill for skill in result.get("optional_skills", []) if skill["id"] not in ineligible_skills
         ]
 
         # Preserve the legacy score ordering while making ranks contiguous after
@@ -69,6 +81,52 @@ class RegistryRecommendationEngine(RecommendationEngine):
         for rank, skill in enumerate(result["optional_skills"], start=len(result["required_skills"]) + 1):
             skill["rank"] = rank
         return result
+
+    def _eligibility_candidates(
+        self, skill_ids: list[str], target: dict[str, str] | None
+    ) -> tuple[list[str], dict[str, set[str]]]:
+        """Resolve target-aware compatibility through registered adapters."""
+        if target is None:
+            return skill_ids, {skill_id: {skill_id} for skill_id in skill_ids}
+
+        entities = self.registry.data["entities"]
+        implementations = {
+            item["id"]: item for item in entities.get("implementations", [])
+        }
+        adapters = entities.get("adapters", [])
+        skills = {item["id"]: item for item in entities.get("skills", [])}
+
+        candidate_ids: list[str] = []
+        candidate_to_skills: dict[str, set[str]] = {}
+        for skill_id in skill_ids:
+            skill = skills[skill_id]
+            implementation_ids = set(skill.get("implementations", []))
+            adapter_ids = {
+                adapter["id"]
+                for adapter in adapters
+                if adapter.get("implementation") in implementation_ids
+            }
+            if not adapter_ids:
+                candidate_ids.append(skill_id)
+                candidate_to_skills.setdefault(skill_id, set()).add(skill_id)
+                continue
+            for adapter_id in sorted(adapter_ids):
+                candidate_ids.append(adapter_id)
+                candidate_to_skills.setdefault(adapter_id, set()).add(skill_id)
+
+        return sorted(set(candidate_ids)), candidate_to_skills
+
+    def _skill_candidates(self, skill_id: str, target: dict[str, str] | None) -> list[str]:
+        candidates, mapping = self._eligibility_candidates([skill_id], target)
+        return [candidate_id for candidate_id in candidates if skill_id in mapping.get(candidate_id, set())]
+
+    @staticmethod
+    def _candidate_statuses(candidate_id: str, eligibility: dict[str, Any]) -> list[str]:
+        return [
+            item["status"]
+            for item in eligibility.get("candidates", [])
+            if item["id"] == candidate_id
+        ]
 
     def _registered_skill_ids(self) -> set[str]:
         return {skill["id"] for skill in self.registry.data["entities"].get("skills", [])}
