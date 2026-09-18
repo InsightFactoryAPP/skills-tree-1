@@ -76,3 +76,13 @@ def test_implementation_source_exists() -> None:
     data = json.loads(REGISTRY.read_text(encoding="utf-8"))
     implementation = data["entities"]["implementations"][0]
     assert (ROOT / implementation["provenance"]["source"]).is_file()
+
+
+def test_first_adapter_gate_is_not_promoted_without_implementation_mapping() -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    assert data["entities"]["adapters"] == []
+    implementation = next(
+        item for item in data["entities"]["implementations"]
+        if item["id"] == "implementation/code-reviewer-system"
+    )
+    assert implementation["status"] == "candidate"
