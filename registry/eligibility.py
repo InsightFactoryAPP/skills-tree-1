@@ -59,27 +59,28 @@ class EligibilityEngine:
                     target_type=target["type"],
                     target_id=target["id"],
                 )
+                target_ref = target["id"]
                 if not facts:
                     reasons.append({
                         "code": "compatibility_missing",
-                        "message": f"No evidence-backed compatibility fact for {candidate_id} and {target['type']}/{target['id']}",
+                        "message": f"No evidence-backed compatibility fact for {candidate_id} and {target_ref}",
                     })
                 else:
                     status = facts[0]["status"]
                     if status == "conditional":
                         reasons.append({
                             "code": "compatibility_conditional",
-                            "message": f"Compatibility is conditional for {candidate_id} and {target['type']}/{target['id']}",
+                            "message": f"Compatibility is conditional for {candidate_id} and {target_ref}",
                         })
                     elif status in {"incompatible", "deprecated"}:
                         reasons.append({
                             "code": f"compatibility_{status}",
-                            "message": f"Compatibility status is {status} for {candidate_id} and {target['type']}/{target['id']}",
+                            "message": f"Compatibility status is {status} for {candidate_id} and {target_ref}",
                         })
                     elif status == "unknown":
                         reasons.append({
                             "code": "compatibility_missing",
-                            "message": f"Compatibility is not established for {candidate_id} and {target['type']}/{target['id']}",
+                            "message": f"Compatibility is not established for {candidate_id} and {target_ref}",
                         })
 
             reason_codes = {reason["code"] for reason in reasons}
