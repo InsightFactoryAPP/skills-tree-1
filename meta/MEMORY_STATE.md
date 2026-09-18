@@ -43,7 +43,7 @@ The older `AGENT_SKILLS_MASTER_PLAN.md`, `AGENT_SKILLS_BACKLOG.md`, `ROADMAP.md`
 
 `P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6 → P1.7 → P1.8 → P1.9 → P1.10 → P1.11 → P2.1 → P2.2`
 
-P2.2 is complete and validated on the pre-reconciliation main history. The next engineering action is an architecture audit, not an invented P2.3.
+P2.2 is complete and validated on the pre-reconciliation main history. The governance reconciliation PRs are now merged through `f7ffbe3e0e816eabede6b4e684820cdff6ea2b6c`. The next engineering action is an architecture audit, not an invented P2.3.
 
 ---
 
