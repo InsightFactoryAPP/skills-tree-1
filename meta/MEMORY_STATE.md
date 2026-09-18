@@ -12,12 +12,12 @@
 | Key | Value |
 |---|---|
 | Mission | Universal Agent Knowledge Layer |
-| Main HEAD at reconciliation | `066bf14ff2937dc52a8427240cde6712ce3839ca` |
+| Main HEAD at reconciliation | `31cabe75eae7f26d73a7504ad3b83043d6fe79af` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
 | Highest verified item | P2.2 — Typed runtime access and validation |
-| Next item | Not numbered; must be derived from post-P2.2 architecture audit |
-| Active governance blocker | None after this reconciliation, subject to CI and merge |
+| Next item | Unnumbered post-P2.2 lifecycle verification gate derived by architecture audit |
+| Active governance blocker | None at audit baseline |
 | Current implementation registry | `implementation/code-reviewer-system` |
 | MCP classification | Protocol; not an Implementation |
 | New claims policy | No provider/platform/framework/model/adapter/compatibility claims without authoritative provenance |
@@ -43,10 +43,14 @@ The older `AGENT_SKILLS_MASTER_PLAN.md`, `AGENT_SKILLS_BACKLOG.md`, `ROADMAP.md`
 
 `P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6 → P1.7 → P1.8 → P1.9 → P1.10 → P1.11 → P2.1 → P2.2`
 
-P2.2 is complete and validated on the pre-reconciliation main history. The governance reconciliation PRs are now merged through `f7ffbe3e0e816eabede6b4e684820cdff6ea2b6c`. The next engineering action is an architecture audit, not an invented P2.3.
+P2.2 is complete and validated on `main`. PR #117 synchronized the prior governance checkpoint with the then-current merged state. The post-P2.2 architecture audit identified lifecycle verification enforcement as the next highest-value gap.
 
 ---
 
+## Current Audit-Driven Slice
+
+The Implementation Contract defines `verified` as a state whose claims have passed evidence and validation gates. The selected minimal correction adds a schema gate requiring evidence and traceable provenance for `verified` records, plus runtime validation that each referenced evidence record explicitly supports the Implementation. The existing production registry remains `candidate` and is unchanged.
+
 ## Next Action
 
-Perform the post-P2.2 Implementation Ontology architecture audit. Identify the highest-value missing invariant or runtime capability, document it, then implement only the smallest schema → runtime → behavioral-test slice justified by that evidence.
+Validate the lifecycle verification gate through the full test/build/CI quality gate. Do not invent a numbered P2.3 item; roadmap numbering remains intentionally open until the audit-derived slice is verified.
