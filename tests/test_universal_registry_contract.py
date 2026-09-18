@@ -39,6 +39,8 @@ def test_universal_registry_defines_all_core_entity_types() -> None:
         "platform",
         "framework",
         "adapter",
+        "protocol",
+        "runtime",
         "evidence",
         "benchmark",
         "architecture",

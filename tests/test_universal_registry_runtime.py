@@ -76,3 +76,62 @@ def test_implementation_source_exists() -> None:
     data = json.loads(REGISTRY.read_text(encoding="utf-8"))
     implementation = data["entities"]["implementations"][0]
     assert (ROOT / implementation["provenance"]["source"]).is_file()
+
+
+def test_first_adapter_gate_is_not_promoted_without_implementation_mapping() -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    assert data["entities"]["adapters"] == []
+    implementation = next(
+        item for item in data["entities"]["implementations"]
+        if item["id"] == "implementation/code-reviewer-system"
+    )
+    assert implementation["status"] == "candidate"
+
+def test_registry_validates_implementation_and_evidence_links() -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    data["entities"]["implementations"][0]["evidence"] = ["evidence/missing"]
+    broken = REGISTRY.parent / "test-broken-implementation.json"
+    broken.write_text(json.dumps(data), encoding="utf-8")
+    try:
+        with pytest.raises(ValueError, match="Dangling implementation evidence reference"):
+            UniversalRegistry(broken)
+    finally:
+        broken.unlink(missing_ok=True)
+
+
+def test_registry_has_first_class_mcp_protocol_target() -> None:
+    registry = UniversalRegistry(REGISTRY)
+    protocols = registry.data["entities"]["protocols"]
+    assert protocols == [{
+        "id": "protocol/model-context-protocol",
+        "version": "1.0",
+        "name": "Model Context Protocol",
+        "provenance": {
+            "source_type": "repository",
+            "source": "mcp/server.py",
+        },
+    }]
+
+
+def test_registry_rejects_dangling_adapter_target(tmp_path: Path) -> None:
+    data = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    data["entities"]["adapters"].append({
+        "id": "adapter/test-mcp",
+        "version": "1.0",
+        "name": "Test MCP adapter",
+        "implementation": "implementation/code-reviewer-system",
+        "targets": [{"type": "protocol", "id": "protocol/missing"}],
+        "input_mapping": [],
+        "output_mapping": [],
+        "auth_requirements": [],
+        "runtime_requirements": [],
+        "constraints": [],
+        "limitations": [],
+        "provenance": {"source_type": "repository", "source": "mcp/server.py"},
+        "evidence": ["evidence/code-reviewer-system-source"],
+        "status": "candidate",
+    })
+    broken = tmp_path / "broken-adapter.json"
+    broken.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="Dangling adapter target reference"):
+        UniversalRegistry(broken)
