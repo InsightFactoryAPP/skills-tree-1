@@ -55,7 +55,7 @@ class RegistryRecommendationEngine(RecommendationEngine):
             for item in eligibility["candidates"]
             if item["status"] == "ineligible"
         }
-        ineligible_skills = {
+        ineligible_registry_skills = {
             skill_id
             for candidate_id in ineligible_candidates
             for skill_id in candidate_to_skills.get(candidate_id, {candidate_id})
@@ -64,6 +64,11 @@ class RegistryRecommendationEngine(RecommendationEngine):
                 for related_id in self._skill_candidates(skill_id, target)
                 for candidate_status in self._candidate_statuses(related_id, eligibility)
             )
+        }
+        ineligible_skills = {
+            skill["id"]
+            for skill in result.get("required_skills", []) + result.get("optional_skills", [])
+            if self._normalize_skill_id(skill.get("id")) in ineligible_registry_skills
         }
         if not ineligible_skills:
             return result
