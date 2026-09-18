@@ -15,7 +15,7 @@ ENGINE = RegistryRecommendationEngine(
 
 
 def test_recommendation_exposes_registry_eligibility_without_changing_legacy_candidates():
-    result = ENGINE.recommend("Software Engineering")
+    result = ENGINE.recommend("Coding Agent")
     assert "error" not in result
     assert result["required_skills"]
     assert result["eligibility"]["candidates"] == [
@@ -29,7 +29,7 @@ def test_recommendation_exposes_registry_eligibility_without_changing_legacy_can
 
 def test_target_compatibility_uses_registered_adapter_evidence():
     result = ENGINE.recommend(
-        "Software Engineering",
+        "Coding Agent",
         target={"type": "protocol", "id": "protocol/model-context-protocol"},
     )
     assert "error" not in result
@@ -54,7 +54,7 @@ def test_target_incompatible_registered_adapter_is_filtered_before_ranking():
     data["entities"]["compatibilities"][0]["status"] = "incompatible"
     try:
         result = ENGINE.recommend(
-            "Software Engineering",
+            "Coding Agent",
             target={"type": "protocol", "id": "protocol/model-context-protocol"},
         )
         assert all(skill["id"] != "05-code/code-review" for skill in result["required_skills"])
