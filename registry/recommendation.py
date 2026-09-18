@@ -41,9 +41,10 @@ class RegistryRecommendationEngine(RecommendationEngine):
 
         registered_skills = self._registered_skill_ids()
         candidate_skills = [
-            self._normalize_skill_id(skill.get("id"))
+            normalized_id
             for skill in result.get("required_skills", []) + result.get("optional_skills", [])
-            if self._normalize_skill_id(skill.get("id")) in registered_skills
+            for normalized_id in [self._normalize_skill_id(skill.get("id"))]
+            if normalized_id is not None and normalized_id in registered_skills
         ]
         candidate_ids, candidate_to_skills = self._eligibility_candidates(candidate_skills, target)
         eligibility = self.eligibility.evaluate(candidate_ids, target=target)
