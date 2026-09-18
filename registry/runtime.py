@@ -128,7 +128,7 @@ class UniversalRegistry:
             if target_id not in {x["id"] for x in entities.get(compatibility_target_collections[target_type], [])}:
                 raise ValueError(f"Dangling compatibility target reference: {target_type}/{target_id}")
             if compatibility.get("status") not in {"compatible", "conditional", "incompatible", "unknown", "deprecated"}:
-                raise ValueError(f"Invalid compatibility status: {compatibility.get("status")}")
+                raise ValueError(f"Invalid compatibility status: {compatibility.get('status')}")
             for evidence_id in compatibility.get("evidence", []):
                 if evidence_id not in evidence:
                     raise ValueError(f"Dangling compatibility evidence reference: {evidence_id}")
