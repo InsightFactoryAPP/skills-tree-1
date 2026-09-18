@@ -56,7 +56,7 @@ Implementations, Tools, Models, Platforms, Frameworks, Adapters, Evidence, Bench
 8. RecommendationEngine aggregates confidence and returns the recommendation payload.
 9. API applies the ranking calibration boundary and converts the result to Pydantic summaries.
 
-The universal registry runtime is not yet inserted into this production recommendation path. That integration is deferred until the registry records have equivalent coverage and contract tests.
+The universal registry runtime is not yet inserted into this production recommendation path. The new eligibility engine is a standalone pre-ranking boundary and does not alter existing recommendation behavior; integration remains deferred until the registry records have equivalent coverage and contract tests.
 
 ## Blueprint execution
 
@@ -74,3 +74,8 @@ BlueprintGenerator consumes the recommendation result and taxonomy. Architecture
 ## Migration constraint
 
 Do not bulk-migrate the existing skill corpus or introduce platform-specific duplicate skills until the universal entity contract, typed graph relationships, provenance rules, and compatibility semantics have behavioral coverage.
+
+
+## Eligibility execution
+
+P1.9 adds `registry/eligibility.py` as a deterministic pre-ranking filter. It evaluates registered candidate IDs against an optional typed execution target and consumes evidence-backed compatibility facts. Compatible facts permit eligibility, conditional facts produce a conditional result, and incompatible, deprecated, unknown, or missing compatibility evidence prevent eligibility. The engine does not assign ranking scores or mutate registry data. Prerequisite evaluation remains limited until authoritative prerequisite records are available.
