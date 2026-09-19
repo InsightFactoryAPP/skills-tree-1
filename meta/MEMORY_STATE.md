@@ -11,7 +11,7 @@
 
 | Key | Value |
 |---|---|
-| Main HEAD at task baseline | `696d12ba4c41f947dd2a7344aa2f8fea3792d621` |
+| Main HEAD at task baseline | `07b02d82a2847e52154415acd5baf6d872a80f26` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
 | Highest verified roadmap item | P2.2 — Typed runtime access and validation |
