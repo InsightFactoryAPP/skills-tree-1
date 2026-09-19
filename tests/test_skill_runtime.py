@@ -13,22 +13,22 @@ REGISTRY_PATH = ROOT / "registry" / "universal_registry.json"
 
 def test_resolve_skill_returns_canonical_record() -> None:
     runtime = SkillRuntime(UniversalRegistry(REGISTRY_PATH))
-    skill = runtime.resolve_skill("skill/code-review")
-    assert skill["id"] == "skill/code-review"
+    skill = runtime.resolve_skill("05-code/code-review")
+    assert skill["id"] == "05-code/code-review"
     assert skill["canonical"] is True
 
 
 def test_capabilities_for_skill_is_deterministic() -> None:
     runtime = SkillRuntime(UniversalRegistry(REGISTRY_PATH))
-    first = runtime.capabilities_for_skill("skill/code-review")
-    second = runtime.capabilities_for_skill("skill/code-review")
+    first = runtime.capabilities_for_skill("05-code/code-review")
+    second = runtime.capabilities_for_skill("05-code/code-review")
     assert [item["id"] for item in first] == sorted(item["id"] for item in first)
     assert first == second
 
 
 def test_implementations_for_skill_is_deterministic() -> None:
     runtime = SkillRuntime(UniversalRegistry(REGISTRY_PATH))
-    implementations = runtime.implementations_for_skill("skill/code-review")
+    implementations = runtime.implementations_for_skill("05-code/code-review")
     assert [item["id"] for item in implementations] == sorted(item["id"] for item in implementations)
 
 
@@ -40,6 +40,6 @@ def test_unknown_skill_is_rejected() -> None:
 
 def test_skill_runtime_returns_defensive_snapshots() -> None:
     runtime = SkillRuntime(UniversalRegistry(REGISTRY_PATH))
-    skill = runtime.resolve_skill("skill/code-review")
+    skill = runtime.resolve_skill("05-code/code-review")
     skill["name"] = "mutated"
-    assert runtime.resolve_skill("skill/code-review")["name"] != "mutated"
+    assert runtime.resolve_skill("05-code/code-review")["name"] != "mutated"
