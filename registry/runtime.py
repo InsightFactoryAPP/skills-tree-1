@@ -144,12 +144,14 @@ class UniversalRegistry:
         }
         for edge in edges:
             relationship = edge["relationship_type"]
-            source = by_id[edge["source"]]
-            target = by_id[edge["target"]]
             source_id = edge["source"]
             target_id = edge["target"]
             source_type = edge["source_type"]
             target_type = edge["target_type"]
+            if source_id not in by_id or target_id not in by_id:
+                raise ValueError(f"Invalid typed graph endpoint: {source_id} -> {target_id}")
+            source = by_id[source_id]
+            target = by_id[target_id]
 
             if relationship == "requires_capability":
                 valid = source_type == "goal" and target_type == "capability" and target_id in source.get("capabilities", [])
