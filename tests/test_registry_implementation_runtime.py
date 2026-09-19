@@ -266,3 +266,34 @@ def test_registry_initialization_requires_compatibility_evidence_support(tmp_pat
     adapter_contract_target.write_text(adapter_contract.read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(ValueError, match="does not support compatibility"):
         UniversalRegistry(registry_path)
+
+
+def test_registry_initialization_requires_adapter_evidence_support(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    evidence = next(
+        item
+        for item in registry["entities"]["evidence"]
+        if item["id"] == "evidence/code-reviewer-mcp-boundary"
+    )
+    evidence["supports"].remove("adapter/code-reviewer-mcp")
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+    for schema_name in (
+        "implementation-contract.schema.json",
+        "universal-graph.schema.json",
+        "adapter-contract.schema.json",
+    ):
+        source = ROOT / "meta" / schema_name
+        target = tmp_path / "meta" / schema_name
+        target.parent.mkdir(exist_ok=True)
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    graph = ROOT / "graph" / "universal_graph.json"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(graph.read_text(encoding="utf-8"), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="does not support adapter"):
+        UniversalRegistry(registry_path)
