@@ -194,12 +194,11 @@ class UniversalRegistry:
         evidence = {item["id"]: item for item in self._data["entities"]["evidence"]}
         for implementation in self._data["entities"]["implementations"]:
             validator.validate({"contract_version": "1.0", "implementation": implementation})
-            if implementation["status"] != "verified":
-                continue
-            if not implementation["evidence"]:
-                raise ValueError(f"Verified implementation requires evidence: {implementation['id']}")
-            if not implementation["provenance"].get("source"):
-                raise ValueError(f"Verified implementation requires traceable provenance source: {implementation['id']}")
+            if implementation["status"] == "verified":
+                if not implementation["evidence"]:
+                    raise ValueError(f"Verified implementation requires evidence: {implementation['id']}")
+                if not implementation["provenance"].get("source"):
+                    raise ValueError(f"Verified implementation requires traceable provenance source: {implementation['id']}")
             unsupported = [
                 evidence_id
                 for evidence_id in implementation["evidence"]
@@ -207,7 +206,7 @@ class UniversalRegistry:
             ]
             if unsupported:
                 raise ValueError(
-                    f"Verified implementation evidence does not support implementation {implementation['id']}: "
+                    f"Implementation evidence does not support implementation {implementation['id']}: "
                     + ", ".join(sorted(unsupported))
                 )
 
