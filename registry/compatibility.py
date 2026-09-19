@@ -44,7 +44,7 @@ class CompatibilityRuntime:
             for item in self._data["entities"].get("evidence", [])
         }
         entities = {
-            item["id"]: entity_type
+            item["id"]: entity_type.rstrip("s")
             for entity_type, items in self._data["entities"].items()
             for item in items
         }
@@ -55,6 +55,11 @@ class CompatibilityRuntime:
             target = record["target"]
             if target["id"] not in entities:
                 raise ValueError(f"Unknown compatibility target: {target['id']}")
+            if entities[target["id"]] != target["type"]:
+                raise ValueError(
+                    f"Compatibility target type mismatch: {target['id']} "
+                    f"declared as {target['type']} but registry entity is {entities[target['id']]}"
+                )
             unsupported = [
                 evidence_id
                 for evidence_id in record["evidence"]
