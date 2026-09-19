@@ -38,6 +38,7 @@ def test_capability_adapter_linkage_must_be_symmetric(tmp_path: Path) -> None:
         if item["id"] == "capability/code-quality"
     )
     capability["skills"] = []
+    capability["implementations"] = []
 
     registry_path = tmp_path / "registry" / "universal_registry.json"
     registry_path.parent.mkdir()
