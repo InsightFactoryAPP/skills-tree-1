@@ -11,12 +11,12 @@
 
 | Key | Value |
 |---|---|
-| Main HEAD at task baseline | `5f040d8b7c005d1ae90005064be47dd05a903438` |
+| Main HEAD at task baseline | `66725159dd56ce9c138f3767b16001bd292e366e` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
 | Highest verified roadmap item | P2.2 — Typed runtime access and validation |
-| Current audit-derived slice | Universal registry entity provenance source contract |
-| Active branch | `phase2/registry-provenance-contract-20260919` |
+| Current audit-derived slice | Universal registry entity provenance source contract — merged |
+| Active branch | `main` |
 | Active governance blocker | None |
 | Current implementation registry | `implementation/code-reviewer-system` |
 | MCP classification | Protocol; not an Implementation |
@@ -40,8 +40,8 @@ Phase 1 and P2.1/P2.2 remain the highest numbered verified roadmap items. Univer
 
 ## Current Audit-Driven Slice
 
-Post-P2.2 audit found a parallel provenance gap: the universal registry contract defined `source` but did not require it, and runtime integrity only required the provenance object to exist. The slice makes entity provenance traceable by requiring a non-empty `source` in the normative registry schema and rejecting missing entity provenance sources at runtime, with regression coverage. No entities or ecosystem claims are added.
+Post-P2.2 audit found a parallel provenance gap: the universal registry contract defined `source` but did not require it, and runtime integrity only required the provenance object to exist. The slice makes entity provenance traceable by requiring a non-empty `source` in the normative registry schema and rejecting missing entity provenance sources at runtime, with regression coverage. PR #124 was merged to `main` at `66725159dd56ce9c138f3767b16001bd292e366e`. No entities or ecosystem claims were added.
 
 ## Next Action
 
-Run the full behavioral, schema, graph, security, build, and CI quality gate for this slice. Merge only after all required checks are explicitly green, using the exact current PR head SHA. After merge, reconcile this state checkpoint to the resulting main HEAD.
+Perform a fresh Phase 2 post-P2.2 architectural audit from the resulting `main` state. Derive the smallest evidence-backed vertical slice, document it before implementation, and do not invent a numbered P2.3 requirement.
