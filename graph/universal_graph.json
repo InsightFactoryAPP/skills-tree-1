@@ -1,10 +1,13 @@
-{"graph_version":"1.0","edges":[
-{"source":"goal/software-engineering","source_type":"goal","target":"capability/code-quality","target_type":"capability","relationship_type":"requires_capability","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"capability/code-quality","source_type":"capability","target":"05-code/code-review","target_type":"skill","relationship_type":"enables_skill","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"05-code/code-review","source_type":"skill","target":"implementation/code-reviewer-system","target_type":"implementation","relationship_type":"realized_by","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"implementation/code-reviewer-system","source_type":"implementation","target":"adapter/code-reviewer-mcp","target_type":"adapter","relationship_type":"exposed_through","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"adapter/code-reviewer-mcp","source_type":"adapter","target":"protocol/model-context-protocol","target_type":"protocol","relationship_type":"adapted_to","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"implementation/code-reviewer-system","source_type":"implementation","target":"evidence/code-reviewer-runtime","target_type":"evidence","relationship_type":"supported_by_evidence","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"adapter/code-reviewer-mcp","source_type":"adapter","target":"evidence/code-reviewer-mcp-boundary","target_type":"evidence","relationship_type":"supported_by_evidence","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
-{"source":"adapter/code-reviewer-mcp","source_type":"adapter","target":"compatibility/code-reviewer-mcp-model-context-protocol","target_type":"compatibility","relationship_type":"supported_by_evidence","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}}
-]}
+{
+  "graph_version": "1.0",
+  "edges": [
+    {"source":"goal/software-engineering","source_type":"goal","target":"capability/code-quality","target_type":"capability","relationship_type":"requires_capability","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"capability/code-quality","source_type":"capability","target":"05-code/code-review","target_type":"skill","relationship_type":"enables_skill","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"05-code/code-review","source_type":"skill","target":"implementation/code-reviewer-system","target_type":"implementation","relationship_type":"realized_by","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"implementation/code-reviewer-system","source_type":"implementation","target":"adapter/code-reviewer-mcp","target_type":"adapter","relationship_type":"exposed_through","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"adapter/code-reviewer-mcp","source_type":"adapter","target":"protocol/model-context-protocol","target_type":"protocol","relationship_type":"adapted_to","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"implementation/code-reviewer-system","source_type":"implementation","target":"evidence/code-reviewer-runtime","target_type":"evidence","relationship_type":"supported_by_evidence","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"adapter/code-reviewer-mcp","source_type":"adapter","target":"evidence/code-reviewer-mcp-boundary","target_type":"evidence","relationship_type":"supported_by_evidence","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}},
+    {"source":"compatibility/code-reviewer-mcp-model-context-protocol","source_type":"compatibility","target":"evidence/code-reviewer-mcp-boundary","target_type":"evidence","relationship_type":"supported_by_evidence","provenance":{"source_type":"repository","source":"registry/universal_registry.json"}}
+  ]
+}
