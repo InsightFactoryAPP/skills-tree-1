@@ -121,6 +121,7 @@ class UniversalRegistry:
                 raise ValueError(f"Invalid typed graph endpoint: {edge['source']} -> {edge['target']}")
             if edge["source"] == edge["target"]:
                 raise ValueError(f"Graph self-loop: {edge['source']}")
+        self._validate_graph_relationships(edges, entities)
         return deepcopy(sorted(edges, key=lambda x: (x["source"], x["relationship_type"], x["target"])))
 
     def _validate_graph_contract(self) -> None:
@@ -130,7 +131,58 @@ class UniversalRegistry:
         graph = json.loads(graph_path.read_text(encoding="utf-8"))
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         Draft202012Validator(schema).validate(graph)
+        self._validate_graph_relationships(graph.get("edges", []), self._data["entities"])
         self._graph_data = graph
+
+    @staticmethod
+    def _validate_graph_relationships(edges: list[dict[str, Any]], entities: dict[str, list[dict[str, Any]]]) -> None:
+        """Enforce semantic source/target/reference rules for currently used graph relationships."""
+        by_id = {
+            record["id"]: record
+            for records in entities.values()
+            for record in records
+        }
+        for edge in edges:
+            relationship = edge["relationship_type"]
+            source = by_id[edge["source"]]
+            target = by_id[edge["target"]]
+            source_id = edge["source"]
+            target_id = edge["target"]
+            source_type = edge["source_type"]
+            target_type = edge["target_type"]
+
+            if relationship == "requires_capability":
+                valid = source_type == "goal" and target_type == "capability" and target_id in source.get("capabilities", [])
+            elif relationship == "enables_skill":
+                valid = source_type == "capability" and target_type == "skill" and target_id in source.get("skills", [])
+            elif relationship == "realized_by":
+                valid = source_type == "skill" and target_type == "implementation" and target_id in source.get("implementations", [])
+            elif relationship == "exposed_through":
+                valid = (
+                    source_type == "implementation"
+                    and target_type == "adapter"
+                    and target.get("implementation") == source_id
+                )
+            elif relationship == "adapted_to":
+                valid = (
+                    source_type == "adapter"
+                    and target_type in {"platform", "framework", "model", "protocol", "runtime"}
+                    and any(item.get("type") == target_type and item.get("id") == target_id for item in source.get("targets", []))
+                )
+            elif relationship == "supported_by_evidence":
+                valid = (
+                    source_type in {"implementation", "adapter", "compatibility"}
+                    and target_type == "evidence"
+                    and target_id in source.get("evidence", [])
+                )
+            else:
+                continue
+
+            if not valid:
+                raise ValueError(
+                    f"Invalid graph relationship semantics: {source_id} ({source_type}) "
+                    f"-{relationship}-> {target_id} ({target_type})"
+                )
 
     def _validate_implementation_contracts(self) -> None:
         """Validate every registered Implementation against the normative contract."""
