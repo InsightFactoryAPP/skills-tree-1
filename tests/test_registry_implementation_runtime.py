@@ -60,6 +60,34 @@ def test_registry_initialization_validates_implementation_contract(tmp_path: Pat
         UniversalRegistry(registry_path)
 
 
+def test_implementation_evidence_must_support_record(tmp_path: Path) -> None:
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    implementation = registry["entities"]["implementations"][0]
+    evidence = registry["entities"]["evidence"][0]
+    evidence["supports"] = []
+    registry_path = tmp_path / "registry" / "universal_registry.json"
+    registry_path.parent.mkdir()
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+    for schema_name in (
+        "implementation-contract.schema.json",
+        "universal-graph.schema.json",
+        "adapter-contract.schema.json",
+    ):
+        source = ROOT / "meta" / schema_name
+        target = tmp_path / "meta" / schema_name
+        target.parent.mkdir(exist_ok=True)
+        target.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+
+    graph = ROOT / "graph" / "universal_graph.json"
+    graph_target = tmp_path / "graph" / "universal_graph.json"
+    graph_target.parent.mkdir()
+    graph_target.write_text(graph.read_text(encoding="utf-8"), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="does not support implementation"):
+        UniversalRegistry(registry_path)
+
+
 def test_verified_implementation_requires_evidence_and_traceable_provenance(tmp_path: Path) -> None:
     registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
     implementation = registry["entities"]["implementations"][0]
