@@ -29,6 +29,24 @@ class ImplementationRecord(TypedDict):
     status: str
 
 
+class AdapterRecord(TypedDict):
+    """Normative runtime shape for a registered Adapter."""
+    id: str
+    version: str
+    name: str
+    implementation: str
+    targets: list[dict[str, str]]
+    input_mapping: list[dict[str, str]]
+    output_mapping: list[dict[str, str]]
+    auth_requirements: list[str]
+    runtime_requirements: list[str]
+    constraints: list[str]
+    limitations: list[str]
+    provenance: dict[str, Any]
+    evidence: list[str]
+    status: str
+
+
 class UniversalRegistry:
     """Read-only registry facade for Goal -> Capability -> Skill resolution."""
 
@@ -74,6 +92,22 @@ class UniversalRegistry:
             raise KeyError(f"Unknown skill: {skill_id}")
         return deepcopy(sorted(
             [item for item in self._data["entities"]["implementations"] if item["skill"] == skill_id],
+            key=lambda item: item["id"],
+        ))
+
+    def resolve_adapter(self, adapter_id: str) -> AdapterRecord:
+        """Return one validated Adapter by canonical ID."""
+        matches = [item for item in self._data["entities"]["adapters"] if item["id"] == adapter_id]
+        if not matches:
+            raise KeyError(f"Unknown adapter: {adapter_id}")
+        return deepcopy(matches[0])
+
+    def adapters_for_implementation(self, implementation_id: str) -> list[AdapterRecord]:
+        """Return validated adapters for an Implementation in deterministic order."""
+        if not any(item["id"] == implementation_id for item in self._data["entities"]["implementations"]):
+            raise KeyError(f"Unknown implementation: {implementation_id}")
+        return deepcopy(sorted(
+            [item for item in self._data["entities"]["adapters"] if item["implementation"] == implementation_id],
             key=lambda item: item["id"],
         ))
 
