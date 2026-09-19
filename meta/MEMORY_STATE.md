@@ -11,12 +11,12 @@
 
 | Key | Value |
 |---|---|
-| Main HEAD at task baseline | `264c467e3c0826503d0c63b19db81edf3153ce33` |
+| Main HEAD at task baseline | `77737a0fbf743c1cf28431b63790b9acc4d7c469` |
 | Verified roadmap | P1.1–P1.11 + P2.1 + P2.2 |
 | Current phase | Phase 2 — Implementation Ontology |
 | Highest verified roadmap item | P2.2 — Typed runtime access and validation |
-| Current audit-derived slice | Universal graph relationship semantic integrity |
-| Active branch | `phase2/graph-relationship-integrity-20260919` |
+| Current audit-derived slice | Implementation evidence traceability |
+| Active branch | `phase2/implementation-evidence-traceability-20260919` |
 | Active governance blocker | None |
 | Current implementation registry | `implementation/code-reviewer-system` |
 | MCP classification | Protocol; not an Implementation |
@@ -28,10 +28,12 @@
 
 P1.1–P1.11 and P2.1/P2.2 are verified on `main`. PR #131, Capability↔Adapter linkage symmetry, is merged in `264c467e3c0826503d0c63b19db81edf3153ce33` after green CI. No numbered P2.3 item is invented.
 
-The fresh post-P2.2 audit identified a semantic graph-integrity gap: endpoint identity and schema validity did not guarantee that a typed relationship matched the source entity's canonical references. The existing compatibility/evidence graph edge was corrected from an Adapter→Compatibility `supported_by_evidence` edge to a Compatibility→Evidence `supported_by_evidence` edge.
+The post-P2.2 graph relationship integrity slice is merged in `77737a0fbf743c1cf28431b63790b9acc4d7c469` after green CI.
 
-The active branch adds runtime semantic validation for the currently used graph relationship types and focused regression coverage. No registry entities, ecosystem claims, compatibility facts, or MCP classifications are added.
+The fresh post-merge audit identified an Implementation evidence traceability gap: referenced evidence IDs were validated for all Implementations, but reverse claim support in `evidence.supports` was enforced only for `verified` Implementations. The current audited Implementation is `candidate` and already references repository-backed evidence.
+
+The active branch enforces reverse evidence support for every Implementation lifecycle state and adds focused regression coverage. No registry entities, ecosystem claims, compatibility facts, or MCP classifications are added.
 
 ## Next Action
 
-Run focused regression and required CI on `phase2/graph-relationship-integrity-20260919`. If green, open a PR, verify its exact head and all required checks, merge only the green head SHA, then verify the resulting `main` HEAD. If CI fails, inspect the actual failed job/log and make only the smallest architectural correction on the existing branch.
+Run focused regression and required CI on `phase2/implementation-evidence-traceability-20260919`. If green, open a PR, verify its exact head and all required checks, merge only the green head SHA, then verify the resulting `main` HEAD. If CI fails, inspect the actual failed job/log and make only the smallest architectural correction on the existing branch.
