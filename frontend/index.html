@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Skills Tree — AI Engineering Operating System. Explore skills, dependencies, implementations, adapters and evidence.">
+  <meta name="theme-color" content="#070a12">
+  <title>Skills Tree — AI Engineering Operating System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="./"><span class="brand-mark">ST</span><span>skills-tree</span><b>AI Engineering OS</b></a>
+  <nav>
+    <button class="nav-btn active" data-view="overview">Overview</button>
+    <button class="nav-btn" data-view="explorer">Explorer</button>
+    <button class="nav-btn" data-view="registry">Registry</button>
+    <a class="nav-link" href="https://github.com/SamoTech/skills-tree" target="_blank" rel="noreferrer">GitHub ↗</a>
+    <button id="theme" class="icon-btn" aria-label="Toggle theme">☼</button>
+  </nav>
+</header>
+
+<main>
+<section id="overview" class="view active">
+  <div class="hero">
+    <div class="eyebrow">OPEN KNOWLEDGE GRAPH · LIVE FROM GITHUB</div>
+    <h1>AI Engineering<br><span>Operating System</span></h1>
+    <p>Explore the dependency-mapped knowledge layer for AI agents: skills, capabilities, implementations, adapters, platforms and evidence.</p>
+    <div class="hero-actions">
+      <button class="primary" data-view="explorer">Explore Skills</button>
+      <button class="secondary" data-view="registry">Inspect Registry</button>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="section-head"><div><span class="eyebrow">ARCHITECTURE</span><h2>Universal capability pipeline</h2></div></div>
+  <div class="pipeline">
+    <div>Goal</div><i>→</i><div>Capability</div><i>→</i><div>Skill</div><i>→</i><div>Implementation</div><i>→</i><div>Adapter</div><i>→</i><div>Platform</div>
+  </div>
+  <div class="grid-2">
+    <article class="panel">
+      <span class="eyebrow">GRAPH HEALTH</span>
+      <h3>Dependency coverage</h3>
+      <div id="health"></div>
+    </article>
+    <article class="panel">
+      <span class="eyebrow">RUNTIME CONTRACT</span>
+      <h3>Registry surface</h3>
+      <p class="muted">Typed read-only runtime access with contract validation, graph integrity checks, evidence traceability and adapter resolution.</p>
+      <div class="chips"><span>Eligibility</span><span>Scoring</span><span>Evidence</span><span>Adapters</span></div>
+    </article>
+  </div>
+</section>
+
+<section id="explorer" class="view">
+  <div class="section-head">
+    <div><span class="eyebrow">DISCOVERY</span><h2>Skill Explorer</h2></div>
+    <span id="result-count" class="muted"></span>
+  </div>
+  <div class="explorer">
+    <aside class="filters panel">
+      <label>Search<input id="search" type="search" placeholder="RAG, planning, function calling…"></label>
+      <label>Domain<select id="domain"><option value="all">All domains</option></select></label>
+      <label>Level<select id="level"><option value="all">All levels</option><option>basic</option><option>intermediate</option><option>advanced</option></select></label>
+      <label>Stability<select id="stability"><option value="all">All stability</option><option>stable</option><option>evolving</option><option>experimental</option></select></label>
+      <button id="random" class="secondary full">Surprise me</button>
+    </aside>
+    <div class="skill-area">
+      <div id="skills" class="skill-grid"></div>
+      <article id="detail" class="panel detail empty">Select a skill to inspect dependencies and metadata.</article>
+    </div>
+  </div>
+</section>
+
+<section id="registry" class="view">
+  <div class="section-head"><div><span class="eyebrow">UNIVERSAL REGISTRY</span><h2>Implementations & adapters</h2></div></div>
+  <div id="registry-cards" class="registry-grid"></div>
+</section>
+</main>
+
+<footer>Skills Tree · MIT License · <a href="https://github.com/SamoTech/skills-tree" target="_blank" rel="noreferrer">SamoTech/skills-tree</a></footer>
+<script src="./app.js"></script>
+</body>
+</html>
