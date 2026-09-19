@@ -41,5 +41,6 @@ def test_unknown_skill_is_rejected() -> None:
 def test_skill_runtime_returns_defensive_snapshots() -> None:
     runtime = SkillRuntime(UniversalRegistry(REGISTRY_PATH))
     skill = runtime.resolve_skill("05-code/code-review")
-    skill["name"] = "mutated"
-    assert runtime.resolve_skill("05-code/code-review")["name"] != "mutated"
+    original_capabilities = list(skill["capabilities"])
+    skill["capabilities"].append("capability/mutated")
+    assert runtime.resolve_skill("05-code/code-review")["capabilities"] == original_capabilities
