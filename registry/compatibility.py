@@ -43,8 +43,25 @@ class CompatibilityRuntime:
             item["id"]: item
             for item in self._data["entities"].get("evidence", [])
         }
+        entity_type_map = {
+            "goals": "goal",
+            "capabilities": "capability",
+            "skills": "skill",
+            "implementations": "implementation",
+            "tools": "tool",
+            "models": "model",
+            "platforms": "platform",
+            "frameworks": "framework",
+            "protocols": "protocol",
+            "runtimes": "runtime",
+            "adapters": "adapter",
+            "evidence": "evidence",
+            "benchmarks": "benchmark",
+            "architectures": "architecture",
+            "compatibilities": "compatibility",
+        }
         entities = {
-            item["id"]: entity_type.rstrip("s")
+            item["id"]: entity_type_map[entity_type]
             for entity_type, items in self._data["entities"].items()
             for item in items
         }
