@@ -34,6 +34,14 @@ The fresh post-merge audit identified an Implementation evidence traceability ga
 
 The active branch enforces reverse evidence support for every Implementation lifecycle state and adds focused regression coverage. No registry entities, ecosystem claims, compatibility facts, or MCP classifications are added.
 
+## Current Post-P2.2 State
+
+PR #133 (Implementation evidence traceability) is merged into `main` at `3b4ddc44ba10dd3d97433b7095dfd624fd219a95`.
+
+A fresh post-merge audit found that Adapter records have a normative contract and validation but lacked typed read-only runtime access analogous to Implementation access. The active branch adds `AdapterRecord`, deterministic Adapter-by-ID lookup, deterministic Implementation-to-Adapter lookup, and regression coverage without changing registry claims.
+
+MCP remains a Protocol. No compatibility or ecosystem claims are added.
+
 ## Next Action
 
-Run focused regression and required CI on `phase2/implementation-evidence-traceability-20260919`. If green, open a PR, verify its exact head and all required checks, merge only the green head SHA, then verify the resulting `main` HEAD. If CI fails, inspect the actual failed job/log and make only the smallest architectural correction on the existing branch.
+Run focused regression and required CI on `phase2/adapter-runtime-access-20260919`. If green, open a PR, verify its exact head and all required checks, merge only the green head SHA, then verify the resulting `main` HEAD. If CI fails, inspect the actual failed job/log and make only the smallest architectural correction on the existing branch.

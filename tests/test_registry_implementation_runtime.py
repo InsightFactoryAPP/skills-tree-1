@@ -12,6 +12,29 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "registry" / "universal_registry.json"
 
 
+def test_resolve_adapter_returns_normative_record() -> None:
+    registry = UniversalRegistry(REGISTRY_PATH)
+    adapter = registry.resolve_adapter("adapter/code-reviewer-mcp")
+    assert adapter["id"] == "adapter/code-reviewer-mcp"
+    assert adapter["implementation"] == "implementation/code-reviewer-system"
+    assert adapter["status"] == "candidate"
+    assert adapter["targets"] == [{"type": "protocol", "id": "protocol/model-context-protocol"}]
+
+
+def test_adapters_for_implementation_are_deterministic() -> None:
+    registry = UniversalRegistry(REGISTRY_PATH)
+    adapters = registry.adapters_for_implementation("implementation/code-reviewer-system")
+    assert [item["id"] for item in adapters] == ["adapter/code-reviewer-mcp"]
+
+
+def test_unknown_adapter_and_implementation_are_rejected() -> None:
+    registry = UniversalRegistry(REGISTRY_PATH)
+    with pytest.raises(KeyError, match="Unknown adapter"):
+        registry.resolve_adapter("adapter/missing")
+    with pytest.raises(KeyError, match="Unknown implementation"):
+        registry.adapters_for_implementation("implementation/missing")
+
+
 def test_resolve_implementation_returns_normative_record() -> None:
     registry = UniversalRegistry(REGISTRY_PATH)
     implementation = registry.resolve_implementation("implementation/code-reviewer-system")
